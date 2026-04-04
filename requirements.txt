@@ -1,0 +1,27 @@
+# Agent Bench dependencies
+# Install: pip install -r requirements.txt
+
+# LLM providers (install at least one)
+openai>=1.30.0
+anthropic>=0.30.0
+
+# Data / utilities
+pydantic>=2.0.0
+python-dotenv>=1.0.0   # auto-loads .env so API keys don't need to be exported manually
+
+# Optional: Together AI / open-source models
+# together>=1.1.0
+
+# Phase 1 — PDF surface injection
+pypdf>=4.0.0           # PDF text + metadata extraction
+pdfminer.six>=20221105 # fallback extraction (handles more edge cases)
+reportlab>=4.0.0       # create/overlay PDFs for injection variants
+requests>=2.28.0       # dataset downloader
+
+# Phase 2 — Audio surface injection
+openai-whisper>=20230918  # local Whisper transcription (tiny model ~75MB)
+pydub>=0.25.0             # audio mixing / overlay
+gtts>=2.3.0               # free TTS fallback (no API key needed)
+datasets>=2.14.0          # HuggingFace streaming for LibriSpeech
+soundfile>=0.12.0         # save .wav files from HF dataset arrays
+# elevenlabs — optional, highest quality TTS: pip install elevenlabs
