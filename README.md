@@ -4,19 +4,6 @@ Benchmark for measuring where in a tool-using LLM agent's execution pipeline a p
 
 Embeds unique canary tokens (`SECRET-[A-F0-9]{8}`) in injected payloads and tracks them at four pipeline stages: **exposed → persisted → relayed → executed**. This separates what the model sees from what it acts on, localizing defense failures to specific pipeline stages.
 
-## Setup
-
-```bash
-pip install -r requirements.txt
-```
-
-Create a `.env` file with your API keys:
-
-```
-OPENAI_API_KEY=...
-ANTHROPIC_API_KEY=...
-DEEPSEEK_API_KEY=...       # optional
-```
 
 ## Usage
 
