@@ -4,6 +4,7 @@ Benchmark for measuring where in a tool-using LLM agent's execution pipeline a p
 
 Embeds unique canary tokens (`SECRET-[A-F0-9]{8}`) in injected payloads and tracks them at four pipeline stages: **exposed → persisted → relayed → executed**. This separates what the model sees from what it acts on, localizing defense failures to specific pipeline stages.
 
+📄 [arXiv:2603.28013](https://arxiv.org/abs/2603.28013) · 🤗 [Paper page](https://huggingface.co/papers/2603.28013) · 📦 [Run logs (HF dataset)](https://huggingface.co/datasets/kevinwhc/kill-chain-canaries)
 
 ## Usage
 
