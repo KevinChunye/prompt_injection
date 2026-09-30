@@ -25,7 +25,7 @@ OK   Table 3 memory_poison GPT-5-mini: figure/log 0/36  |  table 0/36
 OK   Table 3 tool_poison GPT-5-mini: figure/log 0/36  |  table 0/36
 OK   Table 3 propagation GPT-5-mini: figure/log 3/20  |  table 3/20
 OK   Table 3 permission_esc GPT-5-mini: figure/log 1/36  |  table 1/36
-LOG≠TABLE permission_esc GPT-5-mini: runs.csv gives 0/36; figure follows the table. Table 3 reports 1/36; in_paper rows of runs.csv give 0/36. The only GPT-5-mini permission_esc success in runs.csv is in batch high_n_v2 (in_paper == False).
+LOG≠TABLE permission_esc GPT-5-mini: runs.csv gives 0/36; figure follows the table. Table A1 (v3 Table 3) reports 1/36; in_paper rows of runs.csv give 0/36. The only GPT-5-mini permission_esc success in runs.csv is in batch high_n_v2 (in_paper == False).
 OK   Table 3 memory_poison Claude Haiku 4.5: figure/log 0/20  |  table 0/20
 OK   Table 3 tool_poison Claude Haiku 4.5: figure/log 0/20  |  table 0/20
 OK   Table 3 propagation Claude Haiku 4.5: figure/log 0/20  |  table 0/20
@@ -44,12 +44,26 @@ OK   Table 5 Claude Sonnet 4.5 pdf_append (Exp, Per, Rel, Exe %): figure/log (10
 OK   Table 5 Claude Sonnet 4.5 pdf_whitefont (Exp, Per, Rel, Exe %): figure/log (100, 0, 0, 0)  |  table (100, 0, 0, 0)
 OK   Table 5 GPT-5-mini pdf_append (Exp, Per, Rel, Exe %): figure/log (0, 0, 0, 0)  |  table (0, 0, 0, 0)
 OK   Table 5 GPT-5-mini pdf_whitefont (Exp, Per, Rel, Exe %): figure/log (0, 0, 0, 0)  |  table (0, 0, 0, 0)
-OK   Table 6 GPT-4o-mini -> Claude Haiku 4.5 (Per, Rel, Exe %): figure/log (100, 100, 67)  |  table (100, 100, 67)
-OK   Table 6 GPT-4o-mini -> Claude Haiku 4.5 Exe CI: figure/log (21, 94)  |  table 21-94%
-OK   Table 6 GPT-4o-mini -> DeepSeek Chat (Per, Rel, Exe %): figure/log (100, 100, 100)  |  table (100, 100, 100)
-OK   Table 6 GPT-4o-mini -> DeepSeek Chat Exe CI: figure/log (44, 100)  |  table 44-100%
-OK   Table 6 Claude Haiku 4.5 -> GPT-4o-mini (Per, Rel, Exe %): figure/log (0, 0, 0)  |  table (0, 0, 0)
-OK   Table 6 Claude Haiku 4.5 -> GPT-4o-mini Exe CI: figure/log (0, 56)  |  table 0-56%
-OK   Table 6 DeepSeek Chat -> GPT-4o-mini (Per, Rel, Exe %): figure/log (100, 100, 100)  |  table (100, 100, 100)
-OK   Table 6 DeepSeek Chat -> GPT-4o-mini Exe CI: figure/log (44, 100)  |  table 44-100%
+OK   Fig 5 caption GPT-4o-mini -> Claude Haiku 4.5 (k, n, CI): figure/log (2, 3, 21, 94)  |  table (2, 3, 21, 94)
+OK   Fig 5 caption GPT-4o-mini -> Claude Haiku 4.5 Relayed = Persisted: figure/log (3, 3)  |  table equal
+OK   Fig 5 caption GPT-4o-mini -> DeepSeek Chat (k, n, CI): figure/log (3, 3, 44, 100)  |  table (3, 3, 44, 100)
+OK   Fig 5 caption GPT-4o-mini -> DeepSeek Chat Relayed = Persisted: figure/log (3, 3)  |  table equal
+OK   Fig 5 caption Claude Haiku 4.5 -> GPT-4o-mini (k, n, CI): figure/log (0, 3, 0, 56)  |  table (0, 3, 0, 56)
+OK   Fig 5 caption Claude Haiku 4.5 -> GPT-4o-mini Relayed = Persisted: figure/log (0, 0)  |  table equal
+OK   Fig 5 caption DeepSeek Chat -> GPT-4o-mini (k, n, CI): figure/log (3, 3, 44, 100)  |  table (3, 3, 44, 100)
+OK   Fig 5 caption DeepSeek Chat -> GPT-4o-mini Relayed = Persisted: figure/log (3, 3)  |  table equal
+OK   Fig 5 caption lists all cross-model pairs: figure/log 4  |  table 4
+OK   text: tool-calling runs all exposed: figure/log logs agree, phrase found  |  table all 372 no-defense attacked text-surface runs that made a tool call we
+OK   text: no-tool-call runs: figure/log logs agree, phrase found  |  table The other 56 of the 428 made no tool call
+OK   text: no-tool-call runs by model and scenario: figure/log logs agree, phrase found  |  table 48 GPT-5-mini runs (16 each in \mempoison{}, \toolpoison{} and \permes
+OK   text: no-tool-call runs in one batch: figure/log logs agree, phrase found  |  table all from one collection batch (\path{high_n_v1}
+OK   text: no no-tool-call run in the text relay: figure/log logs agree, phrase found  |  table none is in the text relay
+OK   text: GPT-5-mini 48 of 136: figure/log logs agree, phrase found  |  table its 48 of 136 attacked runs without a tool call
+OK   text: GPT-5-mini high_n_v1: 48 of 100, no clean controls: figure/log logs agree, phrase found  |  table holds all 48 (out of its 100 GPT-5-mini attacked runs) and no clean co
+OK   text: GPT-5-mini clean runs: 36 from three tool-calling batches: figure/log logs agree, phrase found  |  table the 36 GPT-5-mini clean-control runs come from three batches (\path{sc
+OK   text: multi_surface footnote: figure/log logs agree, phrase found  |  table 4 GPT-4o-mini runs, all executed, and 8 GPT-5-mini and 4 Claude Sonnet
+OK   text: 22 compromised runs = scenario_compare_v1 (only batch with 22): figure/log logs agree, phrase found  |  table the 22 compromised runs of the first collection batch (\path{scenario_
+OK   text: defense ablation: 64/64 executed: figure/log logs agree, phrase found  |  table all 64 attacked runs under \wfilter{}, \pidetect{}, \spotlight{} or al
+OK   text: write_filter memory_poison control: figure/log logs agree, phrase found  |  table GPT-4o-mini still executed 8/8 \mempoison{} attacks, as it did without
+OK   text: spotlighting task success 5/8 -> 4/8: figure/log logs agree, phrase found  |  table from 63\% without a defense (5/8, same batch) to 50\% (4/8)
 == 2 mismatch(es) / log-table disagreement(s)

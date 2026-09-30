@@ -91,7 +91,7 @@ def fig_k4():
     pc = pdt.pdf_cells()
     same = pc[pc.pairing == "same_model"].set_index(["writer", "variant"])
     cols = pdt.TEXT_SCENARIOS + ["pdf_append", "pdf_whitefont"]
-    fig, ax = plt.subplots(figsize=(TEXTW, 2.75), layout="constrained")
+    fig, ax = plt.subplots(figsize=(TEXTW, 2.95), layout="constrained")
     nm = len(pdt.MODELS)
     for i, m in enumerate(pdt.MODELS):
         for j, c in enumerate(cols):
@@ -117,9 +117,13 @@ def fig_k4():
     ax.axvline(4, color="#333", lw=1.0, ls=(0, (4, 3)))
     ds = nm - 1 - pdt.MODELS.index("deepseek-chat")
     ax.add_patch(Rectangle((0.04, ds + 0.04), 1.92, 0.92, fill=False, edgecolor="#1E88E5", lw=1.8))
-    ax.set_xlim(0, len(cols)); ax.set_ylim(0, nm + 0.42)
+    ax.set_xlim(0, len(cols)); ax.set_ylim(-0.75, nm + 0.42)
+    # column headers: attack surface (as named in the paper) over the scenario name
     ax.set_xticks(np.arange(len(cols)) + 0.5)
-    ax.set_xticklabels(cols, fontsize=FS, **MONO)
+    ax.set_xticklabels([""] * len(cols))
+    for j, c in enumerate(cols):
+        ax.text(j + 0.5, -0.12, pdt.SURFACE[c], ha="center", va="top", fontsize=FS, color="#222")
+        ax.text(j + 0.5, -0.42, c, ha="center", va="top", fontsize=FS, color="#444", **MONO)
     ax.set_yticks(np.arange(nm) + 0.5); ax.set_yticklabels([pdt.LABEL[m] for m in pdt.MODELS][::-1], fontsize=8)
     ax.tick_params(length=0)
     for s in ["left", "bottom"]:

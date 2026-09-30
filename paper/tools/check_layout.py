@@ -48,9 +48,12 @@ def core_extent(word):
 
 
 def rows_of(words):
+    """Group words into text lines by baseline (the text matrix's y), so that
+    Courier and Times words on the same line land in the same row."""
     rows = {}
     for w in words:
-        rows.setdefault(round(w["bottom"]), []).append(w)
+        base = w["chars"][0]["matrix"][5] if w.get("chars") else -w["bottom"]
+        rows.setdefault(round(base), []).append(w)
     return sorted((sorted(r, key=lambda w: w["x0"]) for r in rows.values()),
                   key=lambda r: r[0]["top"])
 
@@ -124,6 +127,40 @@ def audit(path):
     return problems
 
 
+def loose_lines(path, max_median=7.0, max_gap=10.0):
+    """Justified body lines stretched by TeX: the line ends at a column edge
+    and its ordinary word spaces are wide (median > max_median bp, i.e. more
+    than about twice normal spacing, or one >
+    max_gap bp).  Spaces after sentence punctuation and after bold run-in
+    headings are larger by design and are not counted.  Normal 10pt Times
+    word spacing is about 2.5-3.5 bp."""
+    out = []
+    with pdfplumber.open(path) as pdf:
+        for pno, page in enumerate(pdf.pages, start=1):
+            words = [w for w in page.extract_words(x_tolerance=1.0, return_chars=True, extra_attrs=["fontname"])
+                     if TOP - 2 < w["top"] < BOTTOM + 2]
+            rows = rows_of(words)
+            fw_bottom = full_width_top(page, rows)
+            for r in rows:
+                if r[0]["bottom"] <= fw_bottom + 2 or len(r) < 4:
+                    continue
+                for col_l, col_r in ((LEFT, GUT_L), (GUT_R, RIGHT)):
+                    seg = [w for w in r if w["x0"] >= col_l - 3 and w["x1"] <= col_r + 3]
+                    if len(seg) < 4 or abs(seg[-1]["x1"] - col_r) > 2.5 or abs(seg[0]["x0"] - col_l) > 12:
+                        continue
+                    if max(round(c["size"]) for w in seg for c in w["chars"]) < 10:
+                        continue                    # footnotes, captions, tables, references
+                    gaps = [b_["x0"] - a_["x1"] for a_, b_ in zip(seg, seg[1:])
+                            if a_["text"][-1] not in ".:;?!)" and "Medi" not in a_["fontname"]
+                            and "Bold" not in a_["fontname"]]
+                    if len(gaps) < 3:
+                        continue
+                    med = sorted(gaps)[len(gaps) // 2]
+                    if med > max_median or max(gaps) > max_gap:
+                        out.append((pno, med, max(gaps), " ".join(w["text"] for w in seg)))
+    return out
+
+
 def small_text(path, min_pt):
     """Effective size of every text span, after any figure scaling."""
     import pymupdf
@@ -144,6 +181,7 @@ if __name__ == "__main__":
     ap.add_argument("pdf")
     ap.add_argument("--min-pt", type=float, default=7.0)
     ap.add_argument("--fonts", action="store_true", help="also list text below --min-pt")
+    ap.add_argument("--loose", action="store_true", help="also list stretched (loose) justified lines")
     a = ap.parse_args()
     probs = audit(a.pdf)
     print(f"== geometry: column {COL_W:.0f}bp, gutter {GUT_L:.0f}-{GUT_R:.0f}bp, "
@@ -159,4 +197,9 @@ if __name__ == "__main__":
             print(f"p{s[0]:>2} {s[1]:5.2f}pt {s[2]:<24} y={s[4][1]:6.1f} {tag:<13} {s[3]!r}")
         bad = sum(1 for s in sm if not s[5])
         print(f"== {bad} text span(s) below {a.min_pt}pt (footnote marks listed, not counted)")
+    if a.loose:
+        lo = loose_lines(a.pdf)
+        for p_, med, g, t in lo:
+            print(f"p{p_:>2} loose line: median space {med:3.1f}bp, widest {g:4.1f}bp: {t[:80]!r}")
+        print(f"== {len(lo)} loose line(s)")
     sys.exit(1 if (probs or bad) else 0)

@@ -1,11 +1,11 @@
 """Numbers behind the data figures, read from the result files.
 
-Text-surface cells (Tables 1-3) are computed from data/runs.csv, the per-run
+Text-surface cells (Tables 1, 2 and A1) are computed from data/runs.csv, the per-run
 log released with the paper (Hugging Face dataset kevinwhc/kill-chain-canaries,
-rows with in_paper == True).  PDF-relay cells (Tables 5-6) come from
+rows with in_paper == True).  PDF-relay cells (Table 4 and the Figure 5 caption) come from
 data/pdf_relay_cells.csv: the per-run logs of that experiment are not in the
 code repository or the dataset, so that file holds the per-cell counts of
-Tables 5 and 6 (arXiv 2603.28013v3).
+Tables 5 and 6 of arXiv 2603.28013v3.
 
 verify() recomputes every cell that a figure draws and compares it with the
 tables as typeset in main.tex, so a figure and its table cannot drift apart
@@ -25,6 +25,10 @@ MODELS = ["gpt-4o-mini", "deepseek-chat", "gpt-5-mini", "claude-haiku-4-5", "cla
 LABEL = {"gpt-4o-mini": "GPT-4o-mini", "deepseek-chat": "DeepSeek Chat", "gpt-5-mini": "GPT-5-mini",
          "claude-haiku-4-5": "Claude Haiku 4.5", "claude-sonnet-4-5": "Claude Sonnet 4.5"}
 TEXT_SCENARIOS = ["memory_poison", "tool_poison", "propagation", "permission_esc"]
+# Attack surface of each scenario, named as in Section 3.2 and Figures 2 and 4.
+SURFACE = {"memory_poison": "pre-seeded memory", "tool_poison": "tool result", "propagation": "web page",
+           "permission_esc": "web page", "multi_surface": "web page + pre-seeded memory",
+           "pdf_append": "visible PDF text", "pdf_whitefont": "white PDF text", "audio_inject": "audio transcript"}
 
 # Cells where the typeset table and the released log disagree.  The figure
 # follows the table so the paper stays self-consistent; verify() reports each
@@ -32,7 +36,7 @@ TEXT_SCENARIOS = ["memory_poison", "tool_poison", "propagation", "permission_esc
 TABLE_OVERRIDES = {
     ("permission_esc", "gpt-5-mini"): {
         "k": 1,
-        "why": "Table 3 reports 1/36; in_paper rows of runs.csv give 0/36. The only GPT-5-mini "
+        "why": "Table A1 (v3 Table 3) reports 1/36; in_paper rows of runs.csv give 0/36. The only GPT-5-mini "
                "permission_esc success in runs.csv is in batch high_n_v2 (in_paper == False).",
     },
 }
@@ -129,6 +133,83 @@ def pdf_cells():
     return pd.read_csv(DATA / "pdf_relay_cells.csv")
 
 
+def text_facts():
+    """(name, logs-agree, exact phrase in main.tex) for every count the text
+    quotes from the logs."""
+    df = runs()
+    a = attacked_nodefense()
+    out = []
+    called = a[a["n_tool_calls_a"] > 0]
+    zero = a[a["n_tool_calls_a"] == 0]
+    out.append(("tool-calling runs all exposed", bool(called["is_compromised"].all()) and len(called) == 372,
+                "all 372 no-defense attacked text-surface runs that made a tool call were exposed"))
+    out.append(("no-tool-call runs", len(zero) == 56 and len(a) == 428, "The other 56 of the 428 made no tool call"))
+    by = zero.groupby(["model_a", "scenario"]).size().to_dict()
+    want = {("gpt-5-mini", "memory_poison"): 16, ("gpt-5-mini", "tool_poison"): 16,
+            ("gpt-5-mini", "permission_esc"): 16, ("deepseek-chat", "permission_esc"): 4,
+            ("gpt-4o-mini", "permission_esc"): 4}
+    out.append(("no-tool-call runs by model and scenario", by == want,
+                "48 GPT-5-mini runs (16 each in \\mempoison{}, \\toolpoison{} and \\permesc{}) and 4 runs each "
+                "of DeepSeek Chat and GPT-4o-mini (\\permesc{})"))
+    out.append(("no-tool-call runs in one batch", set(zero["batch"]) == {"high_n_v1"},
+                "all from one collection batch (\\path{high_n_v1}"))
+    out.append(("no no-tool-call run in the text relay", int((zero["scenario"] == "propagation").sum()) == 0,
+                "none is in the text relay"))
+    g5 = df[df["model_a"] == "gpt-5-mini"]
+    g5a = a[a["model_a"] == "gpt-5-mini"]
+    g5z = g5a[g5a["n_tool_calls_a"] == 0]
+    hb = g5[(g5["batch"] == "high_n_v1") & g5["is_attacked"]]
+    clean = g5[~g5["is_attacked"]]
+    clean_batches = set(clean["batch"])
+    no_zero_elsewhere = bool((g5[g5["batch"].isin(clean_batches)]["n_tool_calls_a"] > 0).all())
+    out.append(("GPT-5-mini 48 of 136", len(g5z) == 48 and len(g5a) == 136,
+                "its 48 of 136 attacked runs without a tool call"))
+    out.append(("GPT-5-mini high_n_v1: 48 of 100, no clean controls",
+                len(hb) == 100 and int((hb["n_tool_calls_a"] == 0).sum()) == 48
+                and int(((g5["batch"] == "high_n_v1") & ~g5["is_attacked"]).sum()) == 0,
+                "holds all 48 (out of its 100 GPT-5-mini attacked runs) and no clean controls"))
+    out.append(("GPT-5-mini clean runs: 36 from three tool-calling batches",
+                len(clean) == 36 and clean_batches == {"scenario_compare_v1", "gpt5mini_propagation_v1",
+                                                       "multi_surface_v1"} and no_zero_elsewhere,
+                "the 36 GPT-5-mini clean-control runs come from three batches (\\path{scenario_compare_v1}, "
+                "\\path{gpt5mini_propagation_v1}, \\path{multi_surface_v1}) in which every GPT-5-mini run "
+                "called a tool"))
+    ms = a[a["scenario"] == "multi_surface"].groupby("model_a")["attack_succeeded"].agg(["sum", "count"])
+    out.append(("multi_surface footnote", ms.to_dict() == {"sum": {"claude-sonnet-4-5": 0, "gpt-4o-mini": 4,
+                                                                   "gpt-5-mini": 0},
+                                                           "count": {"claude-sonnet-4-5": 4, "gpt-4o-mini": 4,
+                                                                     "gpt-5-mini": 8}},
+                "4 GPT-4o-mini runs, all executed, and 8 GPT-5-mini and 4 Claude Sonnet 4.5 runs, none executed"))
+    succ = a[a["attack_succeeded"]]
+    sc = succ[succ["batch"] == "scenario_compare_v1"].groupby("model_a").size().to_dict()
+    per_batch = succ.groupby("batch").size()
+    out.append(("22 compromised runs = scenario_compare_v1 (only batch with 22)",
+                sc == {"gpt-4o-mini": 12, "deepseek-chat": 9, "gpt-5-mini": 1}
+                and list(per_batch[per_batch == 22].index) == ["scenario_compare_v1"],
+                "the 22 compromised runs of the first collection batch (\\path{scenario_compare_v1}: 12 "
+                "GPT-4o-mini, 9 DeepSeek Chat and 1 GPT-5-mini run, all without a defense)"))
+    da = df[df["in_paper"] & (df["batch"] == "defense_ablation_v1")]
+    dd = da[da["is_attacked"] & (da["defense"] != "none")]
+    out.append(("defense ablation: 64/64 executed", len(dd) == 64 and bool(dd["attack_succeeded"].all())
+                and bool((dd.groupby(["model_a", "scenario", "defense"]).size() == 4).all()),
+                "all 64 attacked runs under \\wfilter{}, \\pidetect{}, \\spotlight{} or all three combined "
+                "reached Executed (4 runs per model, scenario and defense, all from the defense ablation batch"))
+    pcb = df[df["in_paper"] & (df["batch"] == "defense_positive_control_v1") & df["is_attacked"]
+             & (df["scenario"] == "memory_poison")]
+    k = lambda m, d: (int(pcb[(pcb.model_a == m) & (pcb.defense == d)]["attack_succeeded"].sum()),
+                      int(((pcb.model_a == m) & (pcb.defense == d)).sum()))
+    out.append(("write_filter memory_poison control", k("gpt-4o-mini", "write_filter") == (8, 8)
+                and k("gpt-4o-mini", "none") == (8, 8) and k("deepseek-chat", "write_filter") == (0, 8)
+                and k("deepseek-chat", "none") == (0, 8),
+                "GPT-4o-mini still executed 8/8 \\mempoison{} attacks, as it did without a defense in the same "
+                "batch (DeepSeek Chat: 0/8 in both conditions)"))
+    g4 = da[(da["model_a"] == "gpt-4o-mini") & da["is_attacked"]]
+    u = lambda d: (int(g4[g4.defense == d]["utility_success"].sum()), int((g4.defense == d).sum()))
+    out.append(("spotlighting task success 5/8 -> 4/8", u("none") == (5, 8) and u("spotlighting") == (4, 8),
+                "from 63\\% without a defense (5/8, same batch) to 50\\% (4/8)"))
+    return out
+
+
 # ----------------------------------------------------------------------------- verification
 _MODEL_ALIASES = {"gpt-4o-mini": "gpt-4o-mini", "deepseek chat": "deepseek-chat", "deepseek": "deepseek-chat",
                   "gpt-5-mini": "gpt-5-mini", "claude haiku 4.5": "claude-haiku-4-5",
@@ -212,16 +293,31 @@ def verify():
             d = pc[(pc.pairing == "same_model") & (pc.writer == m) & (pc.variant == v)].iloc[0]
             got = tuple(pct(d[c] / d["n"]) for c in ["exposed", "persisted", "relayed", "executed"])
             check(f"Table 5 {LABEL[m]} {v} (Exp, Per, Rel, Exe %)", got == want, got, want)
-    for r in table_rows("tab:pdf_cross"):
-        w, rd = _model(r[0]), _model(r[1])
-        want = tuple(int(x.rstrip("%")) for x in r[2:5])
-        mm = re.match(r"(\d+)-(\d+)%", r[5])
+    # Figure 5 caption: cross-model pairs (formerly Table 6), Executed k/n with Wilson CI
+    tex = MAIN_TEX.read_text()
+    i = tex.index("\\label{fig:pdf_relay_matrix}")
+    cap = tex[tex.rfind("\\caption{", 0, i):i]
+    pat = re.compile(r"(?:^|[;:.])\s*([A-Z][\w\-~\. ]*?) writer and ([A-Z][\w\-~\. ]*?) reader (\d+)/(\d+) "
+                     r"\((\d+)--(\d+)\\%\)", re.M)
+    found = 0
+    for m in pat.finditer(cap):
+        found += 1
+        w, rd = _model(m.group(1).replace("~", " ")), _model(m.group(2).replace("~", " "))
+        k, n, lo_t, hi_t = map(int, m.groups()[2:])
         d = pc[(pc.pairing == "cross_model") & (pc.writer == w) & (pc.reader == rd)].iloc[0]
-        got = tuple(pct(d[c] / d["n"]) for c in ["persisted", "relayed", "executed"])
         lo, hi = wilson(d["executed"], d["n"])
-        check(f"Table 6 {LABEL[w]} -> {LABEL[rd]} (Per, Rel, Exe %)", got == want, got, want)
-        check(f"Table 6 {LABEL[w]} -> {LABEL[rd]} Exe CI", (pct(lo), pct(hi)) == tuple(map(int, mm.groups())),
-              (pct(lo), pct(hi)), r[5])
+        got = (int(d["executed"]), int(d["n"]), pct(lo), pct(hi))
+        check(f"Fig 5 caption {LABEL[w]} -> {LABEL[rd]} (k, n, CI)", got == (k, n, lo_t, hi_t), got, (k, n, lo_t, hi_t))
+        check(f"Fig 5 caption {LABEL[w]} -> {LABEL[rd]} Relayed = Persisted", d["relayed"] == d["persisted"],
+              (int(d["persisted"]), int(d["relayed"])), "equal")
+    check("Fig 5 caption lists all cross-model pairs", found == int((pc.pairing == "cross_model").sum()),
+          found, int((pc.pairing == "cross_model").sum()))
+    # Counts quoted in the text, recomputed from the logs
+    norm = re.sub(r"\s+", " ", tex.replace("~", " "))
+    for name, ok, phrase in text_facts():
+        present = re.sub(r"\s+", " ", phrase) in norm
+        check(f"text: {name}", ok and present, f"logs {'agree' if ok else 'DISAGREE'}, "
+              f"phrase {'found' if present else 'MISSING'}", phrase[:70])
     lines.append(f"== {bad} mismatch(es) / log-table disagreement(s)")
     return "\n".join(lines), bad
 
