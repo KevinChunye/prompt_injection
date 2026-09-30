@@ -168,3 +168,33 @@ GPT-4o-mini successes, Table 1's GPT-4o-mini row would be 28/56, not 32/60 = 53%
 - Text relay "Executed" counts any agent's outbound arguments; the Agent-B-outbound flag is 0/8,
   0/8, 1/20.
 - GPT-5-mini API identifier `gpt-5-mini-2025-02-15`: please confirm.
+
+## arXiv packaging fix (after the first upload failed)
+
+**Symptom.** arXiv reported "6 files missing from the source", and pdflatex failed with
+`File 'figures/killchain_figures/output/figK1_same_score_different_story.pdf' not found`.
+
+**Cause.** `main.tex` included every figure through a macro:
+`\includegraphics{\KF{figK1_...pdf}}` with `\KF` expanding to
+`figures/killchain_figures/output/`. pdflatex expands the macro, so the local clean-room compile
+passed. arXiv's file scan does not, so it could not match the six figure PDFs to any
+`\includegraphics`. They appear to have been treated as unused and left out of the compile: six
+figures, six "missing" files.
+
+**Fix.**
+- `main.tex` now uses literal paths, `\includegraphics[...]{figures/<name>.pdf}`, and the `\KF`
+  macro is gone.
+- `build_all.py` exports the six PDFs into `paper/figures/`.
+- The zip is flat (`main.tex`, `icml2025.sty`, `00README.json`, `figures/*.pdf`; 9 files, no
+  directory entries).
+- `tools/make_arxiv_zip.sh` now simulates the scan without expanding macros:
+  - it fails on any `\includegraphics`/`\input`/`\include` argument containing a macro;
+  - it fails if a referenced file is missing from the zip, or if the zip holds an unreferenced
+    file;
+  - it then compiles the unpacked zip in an empty directory.
+  - Run on the failed version, it flags all six `\KF` paths.
+- The rebuilt PDF has the same text on every page as before; only file paths changed.
+
+| Item 10 (revised) | Result |
+|---|---|
+| arXiv zip | **PASS** locally: literal-path scan clean (6 references, 0 missing, 0 unreferenced); clean-room compile 12 pages, 0 warnings, 0 overfull. Not yet confirmed on arXiv's servers. |

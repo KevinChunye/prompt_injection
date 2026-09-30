@@ -2,6 +2,8 @@
 % Compile:  pdflatex main  (twice)
 % Requires: icml2025.sty (included); figures/killchain_figures/output/*.pdf
 % Figures:  cd figures/killchain_figures && python build_all.py
+%           (writes the PDFs included below into figures/; paths are literal
+%           so arXiv's file scan can find them)
 \documentclass{article}
 
 \PassOptionsToPackage{numbers}{natbib} % force numbered citations before icml2025.sty loads natbib
@@ -66,7 +68,6 @@
   belowskip=4pt,
 }
 
-\newcommand{\KF}[1]{figures/killchain_figures/output/#1}
 
 % -----------------------------------------------------------------------
 \begin{document}
@@ -86,7 +87,7 @@
 \vspace{0.4em}
 \begin{center}
   \captionsetup{hypcap=false}
-  \includegraphics[width=\textwidth]{\KF{figK1_same_score_different_story.pdf}}
+  \includegraphics[width=\textwidth]{figures/figK1_same_score_different_story.pdf}
   \captionof{figure}{Same attack success, different kill chains.
     PDF relay, visible-text payload (\pdfappend{}), no defense, the same model
     as Agent~A and Agent~B; $n=3$ runs per row (Table~\ref{tab:pdf_same}).
@@ -253,7 +254,7 @@ differs between writing and reading positions in a pipeline.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{\KF{figK2_setup_channels_defenses.pdf}}
+  \includegraphics[width=\textwidth]{figures/figK2_setup_channels_defenses.pdf}
   \caption{Benchmark setup.
     Top: the user task and an attacker payload carrying its canary token.
     Middle: the attack surfaces (named as in Section~\ref{sec:scenarios}),
@@ -478,7 +479,7 @@ channels (Section~\ref{sec:surface}).
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{\KF{figK3_where_it_stopped.pdf}}
+  \includegraphics[width=\textwidth]{figures/figK3_where_it_stopped.pdf}
   \caption{Last stage the canary token reached, as a share of attacked
     runs per model, no defense.
     Left: text relay (\propag{}), $n=8$--$20$ per model
@@ -542,7 +543,7 @@ resistance.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{\KF{figK4_surface_heatmap.pdf}}
+  \includegraphics[width=\textwidth]{figures/figK4_surface_heatmap.pdf}
   \caption{Attack success by model and injection channel, no defense:
     runs that reached Executed over attacked runs ($k/n$), with Wilson 95\%
     CIs in brackets.
@@ -795,7 +796,7 @@ content.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\columnwidth]{\KF{figK5_relay_matrix.pdf}}
+  \includegraphics[width=\columnwidth]{figures/figK5_relay_matrix.pdf}
   \caption{PDF relay by writer (Agent~A, rows) and reader (Agent~B,
     columns): runs that reached Executed and runs whose memory write
     contained the token (Persisted), out of $n=3$ per cell;
@@ -1212,7 +1213,7 @@ Claude Sonnet 4.5 & 0/20  & 0/20 & 0/20 & 0/20 \\
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\textwidth]{\KF{figA_drift_top.pdf}}
+  \includegraphics[width=\textwidth]{figures/figA_drift_top.pdf}
   \caption{Objective drift (Section~\ref{sec:drift}).
     (a)~Per-step drift for one clean and one attacked GPT-4o-mini
     \mempoison{} run; values are Table~\ref{tab:drift_steps}; shaded: the

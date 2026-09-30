@@ -11,7 +11,10 @@ The figures of the Kill-Chain Canaries paper, with the code that draws them.
 | `figK5_relay_matrix` | Fig. 5 | Writer x reader pairs in the PDF relay; the caption carries the cross-model CIs (v3 Table 6) | `src/data_figs.py` |
 | `figA_drift_top` | Fig. A1 | Objective drift: per-step trace and classifier feature importance (merges v3 Figs. 5 and 7) | `src/fig_drift.py` |
 
-Each figure is saved as PDF (used by LaTeX), PNG (preview) and SVG (editable).
+Each figure is saved to `output/` as PDF, PNG (preview) and SVG (editable). `build_all.py` then
+copies the PDFs that `main.tex` includes into `paper/figures/`, and `main.tex` includes them by
+literal path (`figures/<name>.pdf`, no macros): arXiv's file scan does not expand macros, and a
+figure it cannot resolve is dropped from the compile.
 All figures are drawn at their printed width (`\textwidth` = 7.0 in, `\columnwidth` = 3.375 in),
 so sizes in the source are sizes on paper. No text is smaller than 7.2 pt:
 K1/K2 are 1400 px wide and printed at 0.36 bp/px, and `common.text_line` refuses anything
@@ -61,7 +64,7 @@ python build_all.py
 ## Layout
 
 ```
-build_all.py         rebuild everything (and output/verification.txt)
+build_all.py         rebuild everything, write output/verification.txt, export the paper PDFs to ../
 src/paper_data.py    reads the result files, verifies against main.tex
 src/common.py        drawing helpers (avatars, bubbles, tool cards, text measuring)
 src/kc_common.py     kill-chain helpers (canary bird, PDF, memory, checkpoints, shields)
