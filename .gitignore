@@ -22,11 +22,16 @@ datasets/pdfs/
 
 # Experiment outputs (reproduce via runner.py)
 runs/
-figures/
+/figures/
 
-# Paper source (available on arXiv)
-paper/
+# Paper build artifacts (the LaTeX source and figure code in paper/ are tracked)
 paper.zip
+paper/*.aux
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+paper/pages/
 
 # Personal notes
 notes/
