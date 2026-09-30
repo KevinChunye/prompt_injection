@@ -1,0 +1,55 @@
+OK   Table 1 GPT-4o-mini (n, task%, ASR%, CI): figure/log (60, 90, 53, 41, 65)  |  table (60, 90, 53, 41, 65)
+MISMATCH  Table 1 DeepSeek Chat (n, task%, ASR%, CI): figure/log (68, 100, 25, 16, 36)  |  table (68, 100, 25, 16, 37)
+OK   Table 1 GPT-5-mini (n, task%, ASR%, CI): figure/log (136, 94, 3, 1, 7)  |  table (136, 94, 3, 1, 7)
+OK   Table 1 Claude Haiku 4.5 (n, task%, ASR%, CI): figure/log (80, 100, 0, 0, 5)  |  table (80, 100, 0, 0, 5)
+OK   Table 1 Claude Sonnet 4.5 (n, task%, ASR%, CI): figure/log (84, 100, 0, 0, 4)  |  table (84, 100, 0, 0, 4)
+OK   Table 2 GPT-4o-mini (n, Pers%, Rel%, Exec%): figure/log (8, 100, 100, 100)  |  table (8, 100, 100, 100)
+OK   Table 2 GPT-4o-mini Exposed = 100%: figure/log 8/8  |  table 100%
+OK   Table 2 DeepSeek Chat (n, Pers%, Rel%, Exec%): figure/log (8, 100, 100, 100)  |  table (8, 100, 100, 100)
+OK   Table 2 DeepSeek Chat Exposed = 100%: figure/log 8/8  |  table 100%
+OK   Table 2 GPT-5-mini (n, Pers%, Rel%, Exec%): figure/log (20, 15, 15, 15)  |  table (20, 15, 15, 15)
+OK   Table 2 GPT-5-mini Exposed = 100%: figure/log 20/20  |  table 100%
+OK   Table 2 Claude Haiku 4.5 (n, Pers%, Rel%, Exec%): figure/log (20, 0, 0, 0)  |  table (20, 0, 0, 0)
+OK   Table 2 Claude Haiku 4.5 Exposed = 100%: figure/log 20/20  |  table 100%
+OK   Table 2 Claude Sonnet 4.5 (n, Pers%, Rel%, Exec%): figure/log (20, 0, 0, 0)  |  table (20, 0, 0, 0)
+OK   Table 2 Claude Sonnet 4.5 Exposed = 100%: figure/log 20/20  |  table 100%
+OK   Table 3 memory_poison GPT-4o-mini: figure/log 12/12  |  table 12/12
+OK   Table 3 tool_poison GPT-4o-mini: figure/log 8/8  |  table 8/8
+OK   Table 3 propagation GPT-4o-mini: figure/log 8/8  |  table 8/8
+OK   Table 3 permission_esc GPT-4o-mini: figure/log 0/28  |  table 0/28
+OK   Table 3 memory_poison DeepSeek Chat: figure/log 0/24  |  table 0/24
+OK   Table 3 tool_poison DeepSeek Chat: figure/log 8/8  |  table 8/8
+OK   Table 3 propagation DeepSeek Chat: figure/log 8/8  |  table 8/8
+OK   Table 3 permission_esc DeepSeek Chat: figure/log 1/28  |  table 1/28
+OK   Table 3 memory_poison GPT-5-mini: figure/log 0/36  |  table 0/36
+OK   Table 3 tool_poison GPT-5-mini: figure/log 0/36  |  table 0/36
+OK   Table 3 propagation GPT-5-mini: figure/log 3/20  |  table 3/20
+OK   Table 3 permission_esc GPT-5-mini: figure/log 1/36  |  table 1/36
+LOG≠TABLE permission_esc GPT-5-mini: runs.csv gives 0/36; figure follows the table. Table 3 reports 1/36; in_paper rows of runs.csv give 0/36. The only GPT-5-mini permission_esc success in runs.csv is in batch high_n_v2 (in_paper == False).
+OK   Table 3 memory_poison Claude Haiku 4.5: figure/log 0/20  |  table 0/20
+OK   Table 3 tool_poison Claude Haiku 4.5: figure/log 0/20  |  table 0/20
+OK   Table 3 propagation Claude Haiku 4.5: figure/log 0/20  |  table 0/20
+OK   Table 3 permission_esc Claude Haiku 4.5: figure/log 0/20  |  table 0/20
+OK   Table 3 memory_poison Claude Sonnet 4.5: figure/log 0/20  |  table 0/20
+OK   Table 3 tool_poison Claude Sonnet 4.5: figure/log 0/20  |  table 0/20
+OK   Table 3 propagation Claude Sonnet 4.5: figure/log 0/20  |  table 0/20
+OK   Table 3 permission_esc Claude Sonnet 4.5: figure/log 0/20  |  table 0/20
+OK   Table 5 GPT-4o-mini pdf_append (Exp, Per, Rel, Exe %): figure/log (100, 100, 100, 0)  |  table (100, 100, 100, 0)
+OK   Table 5 GPT-4o-mini pdf_whitefont (Exp, Per, Rel, Exe %): figure/log (100, 100, 100, 33)  |  table (100, 100, 100, 33)
+OK   Table 5 DeepSeek Chat pdf_append (Exp, Per, Rel, Exe %): figure/log (100, 100, 100, 100)  |  table (100, 100, 100, 100)
+OK   Table 5 DeepSeek Chat pdf_whitefont (Exp, Per, Rel, Exe %): figure/log (100, 100, 100, 100)  |  table (100, 100, 100, 100)
+OK   Table 5 Claude Haiku 4.5 pdf_append (Exp, Per, Rel, Exe %): figure/log (100, 0, 0, 0)  |  table (100, 0, 0, 0)
+OK   Table 5 Claude Haiku 4.5 pdf_whitefont (Exp, Per, Rel, Exe %): figure/log (100, 0, 0, 0)  |  table (100, 0, 0, 0)
+OK   Table 5 Claude Sonnet 4.5 pdf_append (Exp, Per, Rel, Exe %): figure/log (100, 0, 0, 0)  |  table (100, 0, 0, 0)
+OK   Table 5 Claude Sonnet 4.5 pdf_whitefont (Exp, Per, Rel, Exe %): figure/log (100, 0, 0, 0)  |  table (100, 0, 0, 0)
+OK   Table 5 GPT-5-mini pdf_append (Exp, Per, Rel, Exe %): figure/log (0, 0, 0, 0)  |  table (0, 0, 0, 0)
+OK   Table 5 GPT-5-mini pdf_whitefont (Exp, Per, Rel, Exe %): figure/log (0, 0, 0, 0)  |  table (0, 0, 0, 0)
+OK   Table 6 GPT-4o-mini -> Claude Haiku 4.5 (Per, Rel, Exe %): figure/log (100, 100, 67)  |  table (100, 100, 67)
+OK   Table 6 GPT-4o-mini -> Claude Haiku 4.5 Exe CI: figure/log (21, 94)  |  table 21-94%
+OK   Table 6 GPT-4o-mini -> DeepSeek Chat (Per, Rel, Exe %): figure/log (100, 100, 100)  |  table (100, 100, 100)
+OK   Table 6 GPT-4o-mini -> DeepSeek Chat Exe CI: figure/log (44, 100)  |  table 44-100%
+OK   Table 6 Claude Haiku 4.5 -> GPT-4o-mini (Per, Rel, Exe %): figure/log (0, 0, 0)  |  table (0, 0, 0)
+OK   Table 6 Claude Haiku 4.5 -> GPT-4o-mini Exe CI: figure/log (0, 56)  |  table 0-56%
+OK   Table 6 DeepSeek Chat -> GPT-4o-mini (Per, Rel, Exe %): figure/log (100, 100, 100)  |  table (100, 100, 100)
+OK   Table 6 DeepSeek Chat -> GPT-4o-mini Exe CI: figure/log (44, 100)  |  table 44-100%
+== 2 mismatch(es) / log-table disagreement(s)
