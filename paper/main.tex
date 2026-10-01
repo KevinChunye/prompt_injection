@@ -77,7 +77,7 @@
 \twocolumn[{%
 \begin{center}
   {\Large\bfseries Kill-Chain Canaries: Stage-Level Tracking of Prompt Injection\\[4pt]
-   Across Attack Surfaces and Five Production LLMs}\\[10pt]
+   Across Attack Surfaces and Model Safety Tiers}\\[10pt]
   {\large Haochuan Kevin Wang\textsuperscript{1} \quad Zechen Zhang\textsuperscript{2}}\\[3pt]
   {\normalsize \textsuperscript{1}Massachusetts Institute of Technology \quad \texttt{hcw@mit.edu}}\\[3pt]
   {\normalsize \textsuperscript{2}University of Chicago \quad \texttt{zechenz@uchicago.edu}}\\[6pt]
@@ -170,6 +170,10 @@ pre-seeded memory, tool result, visible PDF text, white PDF text, and audio
 transcript) and five defense conditions in
 \agentbench{}, a custom multi-agent evaluation harness
 (Figure~\ref{fig:system_overview}).
+By model safety tiers we mean the three groups that the text-surface
+results separate (Table~\ref{tab:overall}): GPT-4o-mini (53\% attack
+success), DeepSeek Chat and GPT-5-mini (25\% and 3\%), and Claude Haiku~4.5
+and Claude Sonnet~4.5 (0\%).
 A PDF relay experiment evaluates a three-boundary kill chain (document
 extraction $\to$ memory write $\to$ agent delegation), with same-model
 pairs and cross-model pairs in which Agent~A and Agent~B come from

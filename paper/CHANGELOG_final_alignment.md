@@ -198,3 +198,29 @@ figures, six "missing" files.
 | Item 10 (revised) | Result |
 |---|---|
 | arXiv zip | **PASS** locally: literal-path scan clean (6 references, 0 missing, 0 unreferenced); clean-room compile 12 pages, 0 warnings, 0 overfull. Not yet confirmed on arXiv's servers. |
+
+## Title restored to the v3 title (arXiv replacement requirement)
+
+arXiv rejected the replacement because its title differed from v3. The title is back to the v3
+wording, character for character:
+
+"Kill-Chain Canaries: Stage-Level Tracking of Prompt Injection Across Attack Surfaces and Model
+Safety Tiers"
+
+This reverts the format revision's B8 title change ("... and Five Production LLMs"). "Five
+production LLMs" stays in the body text.
+
+The earlier brief was to define "safety tiers" or drop it from the title. With the term back in
+the title, the introduction now defines it in one sentence, using v3's own three-regime grouping
+and Table 1's numbers (no new numbers):
+
+"By model safety tiers we mean the three groups that the text-surface results separate
+(Table 1): GPT-4o-mini (53% attack success), DeepSeek Chat and GPT-5-mini (25% and 3%), and
+Claude Haiku 4.5 and Claude Sonnet 4.5 (0%)."
+
+Checks after the change:
+- 12 pages, 0 warnings, 0 overfull boxes, 0 undefined references.
+- Layout check: 0 problems; 0 loose lines; no figure text under 7 pt.
+- First references still in order.
+- Verifier unchanged: 66 checks pass, plus the 2 known disagreements.
+- arXiv zip: scan clean; clean-room compile 12 pages.
