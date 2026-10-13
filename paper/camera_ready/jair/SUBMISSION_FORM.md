@@ -57,7 +57,7 @@ You do not upload the source at submission time. It is in this folder: `main.tex
 >
 > **3. Prior publication / under review elsewhere / resubmission**
 >
-> No part of this paper has been published in, or accepted by, a peer-reviewed venue, and it is not under review elsewhere. A preprint of the same work is on arXiv (arXiv:2603.28013; latest version v4, 30 September 2026; not peer reviewed). This submission is that work formatted for JAIR. This is a first submission to JAIR, not a resubmission.
+> No. No part of this paper has been published in, or accepted by, a peer-reviewed venue, and it is not under review elsewhere. A preprint of the same work is on arXiv (arXiv:2603.28013; latest version v4, 30 September 2026; not peer reviewed). This submission is that work formatted for JAIR. This is a first submission to JAIR, not a resubmission.
 
 Before you submit, make sure Question 3 is still true: no TMLR or other submission in parallel.
 
