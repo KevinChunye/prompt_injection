@@ -40,8 +40,9 @@ pilot section (former §4.9, now Appendix B) and the per-step drift table (now T
 Figure A1, which plots it). If you add text, recheck the page count; past 12 pages, choose
 "Long submission", which gets 4-week reviews instead of 2-week reviews.
 
-**Supplementary Material.** Upload `tmlr_supplementary_anonymized.zip`. Reviewers and the public
-can see it during and after review.
+**Supplementary Material.** Upload `tmlr_supplementary_anonymized.zip`. During review, TMLR, the
+Action Editors, the reviewers and the authors can see it; the field text warns it may be public
+after review. It is fully anonymized.
 
 **Previous TMLR Submission URL / Changes Since Last Submission.** Leave both blank. This is a
 first TMLR submission.
@@ -57,7 +58,7 @@ instead of N/A.
 
 **Human Subjects Reporting** (required)
 ```
-N/A. The study involves no human subjects: all experiments are automated runs of LLM agents in a sandboxed harness with synthetic data and no external network access.
+N/A. The study involves no human subjects and no personal data: all experiments are automated runs of LLM agents against simulated tools with synthetic task content.
 ```
 
 ## Right after submitting: recommend Action Editors
