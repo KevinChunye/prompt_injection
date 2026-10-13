@@ -1,0 +1,41 @@
+To: login@usenix.org   [HISTORICAL ADDRESS: ;login: stopped taking submissions in 2025; see README.md]
+Subject: Article proposal: Where Did the Injection Stop? Canary Tokens for Multi-Agent LLM Pipelines
+
+Topic
+  How to find out where a prompt injection stops inside a multi-agent LLM pipeline, rather
+  than only whether it succeeded. The method plants a unique canary token in every injected
+  payload and logs the furthest of four checkpoints it reaches: exposed in a tool result,
+  persisted to shared memory, relayed to a second agent, or executed in an outbound call.
+  The article is a shortened, practitioner-oriented version of our paper "Kill-Chain
+  Canaries" (arXiv:2603.28013).
+
+Type
+  Research.
+
+Audience
+  Security specialists, SREs and engineers who deploy or red-team LLM agents. Also systems
+  researchers who evaluate agent security.
+
+Why is the topic important right now?
+  Agents now read untrusted web pages, PDFs and tool output and hand content to other
+  agents, but their robustness is reported as a single attack-success rate. Across 950 runs
+  with five production LLMs, we found the following:
+  - Pipelines with the same score stopped injections at different stages.
+  - DeepSeek Chat resisted 0 of 24 injections in pre-seeded memory but executed 8 of 8 in
+    tool results.
+  - Three lightweight defenses failed on the channels they do not inspect.
+  Operators can use the method today. It needs only a regular expression over tool
+  traffic, and it works with closed models.
+
+Non-text elements
+  Four figures (PNG, 1400 px or wider): two pipelines with the same score but different
+  kill chains; the benchmark setup; the last stage reached per model; attack success by
+  model and channel. One short Python listing (about 20 lines).
+
+Length
+  About 1,850 words of body text plus the figures and the listing, roughly four to five
+  ;login: pages.
+
+Authors
+  Haochuan Kevin Wang (Massachusetts Institute of Technology), hcw@mit.edu
+  Zechen Zhang (University of Chicago), zechenz@uchicago.edu

@@ -1,0 +1,153 @@
+% Reproducibility Checklist for JAIR (text from the JAIR Author Kit template,
+% 2025-09-15).  Required at submission; not part of the final version.
+\section{Reproducibility Checklist for JAIR}
+
+Select the answers that apply to your research -- one per item.
+
+\subsection*{All articles:}
+
+\begin{enumerate}
+    \item All claims investigated in this work are clearly stated.
+    [yes/partially/no] \textbf{yes}
+    \item Clear explanations are given how the work reported substantiates the claims.
+    [yes/partially/no] \textbf{yes}
+    \item Limitations or technical assumptions are stated clearly and explicitly.
+    [yes/partially/no] \textbf{yes}
+    \item Conceptual outlines and/or pseudo-code descriptions of the AI methods introduced in this work are provided, and important implementation details are discussed.
+    [yes/partially/no/NA] \textbf{yes}
+    \item
+    Motivation is provided for all design choices, including algorithms, implementation choices, parameters, data sets and experimental protocols beyond metrics.
+    [yes/partially/no] \textbf{partially}
+\end{enumerate}
+
+\subsection*{Articles containing theoretical contributions:}
+Does this paper make theoretical contributions?
+[yes/no] \textbf{no}
+
+If yes, please complete the list below.
+
+\begin{enumerate}
+    \item All assumptions and restrictions are stated clearly and formally.
+    [yes/partially/no]
+    \item All novel claims are stated formally (e.g., in theorem statements).
+    [yes/partially/no]
+    \item Proofs of all non-trivial claims are provided in sufficient detail to permit verification by readers with a reasonable degree of expertise (e.g., that expected from a PhD candidate in the same area of AI). [yes/partially/no]
+    \item
+    Complex formalism, such as definitions or proofs, is motivated and explained clearly.
+    [yes/partially/no]
+    \item
+    The use of mathematical notation and formalism serves the purpose of enhancing clarity and precision; gratuitous use of mathematical formalism (i.e., use that does not enhance clarity or precision) is avoided.
+    [yes/partially/no]
+    \item
+    Appropriate citations are given for all non-trivial theoretical tools and techniques.
+    [yes/partially/no]
+\end{enumerate}
+
+\subsection*{Articles reporting on computational experiments:}
+Does this paper include computational experiments? [yes/no] \textbf{yes}
+
+If yes, please complete the list below.
+\begin{enumerate}
+    \item
+    All source code required for conducting experiments is included in an online appendix
+    or will be made publicly available upon publication of the paper.
+    The online appendix follows best practices for source code readability and documentation as well as for long-term accessibility.
+    [yes/partially/no] \textbf{yes}
+    \item The source code comes with a license that
+    allows free usage for reproducibility purposes.
+    [yes/partially/no] \textbf{yes}
+    \item The source code comes with a license that
+    allows free usage for research purposes in general.
+    [yes/partially/no] \textbf{yes}
+    \item
+    Raw, unaggregated data from all experiments is included in an online appendix
+    or will be made publicly available upon publication of the paper.
+    The online appendix follows best practices for long-term accessibility.
+    [yes/partially/no] \textbf{partially}
+    \item The unaggregated data comes with a license that
+    allows free usage for reproducibility purposes.
+    [yes/partially/no] \textbf{yes}
+    \item The unaggregated data comes with a license that
+    allows free usage for research purposes in general.
+    [yes/partially/no] \textbf{yes}
+    \item If an algorithm depends on randomness, then the method used for generating random numbers and for setting seeds is described in a way sufficient to allow replication of results.
+    [yes/partially/no/NA] \textbf{partially}
+    \item The execution environment for experiments, the computing infrastructure (hardware and software) used for running them, is described, including GPU/CPU makes and models; amount of memory (cache and RAM); make and version of operating system; names and versions of relevant software libraries and frameworks.
+    [yes/partially/no] \textbf{partially}
+    \item
+    The evaluation metrics used in experiments are clearly explained and their choice is explicitly motivated.
+    [yes/partially/no] \textbf{yes}
+    \item
+    The number of algorithm runs used to compute each result is reported.
+    [yes/no] \textbf{yes}
+    \item
+    Reported results have not been ``cherry-picked'' by silently ignoring unsuccessful or unsatisfactory experiments.
+    [yes/partially/no] \textbf{yes}
+    \item
+    Analysis of results goes beyond single-dimensional summaries of performance (e.g., average, median) to include measures of variation, confidence, or other distributional information.
+    [yes/no] \textbf{yes}
+    \item
+    All (hyper-) parameter settings for
+    the algorithms/methods used in experiments have been reported, along with the rationale or method for determining them.
+    [yes/partially/no/NA] \textbf{partially}
+    \item
+    The number and range of (hyper-) parameter settings explored prior to conducting final experiments have been indicated, along with the effort spent on (hyper-) parameter optimisation.
+    [yes/partially/no/NA] \textbf{NA}
+    \item
+    Appropriately chosen statistical hypothesis tests are used to establish statistical significance
+    in the presence of noise effects.
+    [yes/partially/no/NA] \textbf{no}
+\end{enumerate}
+
+
+\subsection*{Articles using data sets:}
+Does this work rely on one or more data sets (possibly obtained from a benchmark generator or similar software artifact)?
+[yes/no] \textbf{yes}
+
+If yes, please complete the list below.
+\begin{enumerate}
+    \item
+    All newly introduced data sets
+    are included in an online appendix
+    or will be made publicly available upon publication of the paper.
+    The online appendix follows best practices for long-term accessibility with a license
+    that allows free usage for research purposes.
+    [yes/partially/no/NA] \textbf{partially}
+    \item The newly introduced data set comes with a license that
+    allows free usage for reproducibility purposes.
+    [yes/partially/no] \textbf{yes}
+    \item The newly introduced data set comes with a license that
+    allows free usage for research purposes in general.
+    [yes/partially/no] \textbf{yes}
+    \item All data sets drawn from the literature or other public sources (potentially including authors' own previously published work) are accompanied by appropriate citations.
+    [yes/no/NA] \textbf{NA}
+    \item All data sets drawn from the existing literature (potentially including authors’ own previously published work) are publicly available. [yes/partially/no/NA] \textbf{NA}
+    \item All new data sets and data sets that are not publicly available are described in detail, including relevant statistics, the data collection process and annotation process if relevant.
+    [yes/partially/no/NA] \textbf{partially}
+    \item
+    All methods used for preprocessing, augmenting, batching or splitting data sets (e.g., in the context of hold-out or cross-validation)
+    are described in detail. [yes/partially/no/NA] \textbf{yes}
+\end{enumerate}
+
+\subsection*{Explanations on any of the answers above (optional):}
+
+Design choices (all articles, item 5): the task family, payload wording and per-cell
+sample sizes are described but not separately motivated (Section~\ref{sec:limitations}).
+Code and data licenses: the benchmark code and the per-run log are released under the MIT
+license (GitHub repository and Hugging Face dataset \texttt{kevinwhc/kill-chain-canaries}).
+Unaggregated data: the per-run log covers every text-surface run, including one collected
+batch not used in the paper's tables (marked \texttt{in\_paper = False}); for the PDF
+relay only per-cell counts are released.
+Randomness: models were queried at temperature 0 through provider APIs, which do not
+guarantee deterministic outputs; canary tokens are drawn at random per run; the drift
+classifiers use a fixed seed (42) in the released code.
+Execution environment: the experiments call hosted model APIs (identifiers in
+Section~\ref{sec:benchmark}); client software versions are pinned in the released
+\texttt{requirements.txt}; local hardware does not affect the results.
+Hyperparameters: model settings (temperature 0, 2048 max tokens) are reported; the
+drift classifier settings (100 trees, depth 3) are in the released code; no
+hyperparameter search was performed.
+Statistics: we report Wilson 95\% confidence intervals for every rate instead of
+hypothesis tests, and call results at $n=3$ directional.
+Data sets: task content and injected payloads are generated by the released code; no
+external data set is used in the reported runs.
