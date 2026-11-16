@@ -1,0 +1,119 @@
+\begin{thebibliography}{16}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Debenedetti et~al.(2024)Debenedetti, Zhang, Balunovi{\'c},
+  Beurer-Kellner, Fischer, and Tram{\`e}r]{debenedetti2024agentdojo}
+Edoardo Debenedetti, Jie Zhang, Mislav Balunovi{\'c}, Luca Beurer-Kellner, Marc
+  Fischer, and Florian Tram{\`e}r.
+\newblock {AgentDojo}: A dynamic environment to evaluate prompt injection
+  attacks and defenses for {LLM} agents.
+\newblock In \emph{Advances in Neural Information Processing Systems, Datasets
+  and Benchmarks Track}, 2024.
+
+\bibitem[Ding et~al.(2026)Ding, Xia, Kong, and Jiang]{ding2026covert}
+M.~Ding, S.~Xia, C.~Kong, and X.~Jiang.
+\newblock Covert visual prompt injection against commercial multimodal large
+  language models.
+\newblock \emph{arXiv preprint arXiv:2603.29418}, 2026.
+
+\bibitem[Greshake et~al.(2023)Greshake, Abdelnabi, Mishra, Endres, Holz, and
+  Fritz]{greshake2023not}
+Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten
+  Holz, and Mario Fritz.
+\newblock Not what you've signed up for: Compromising real-world
+  {LLM}-integrated applications with indirect prompt injections.
+\newblock In \emph{Proceedings of the 16th ACM Workshop on Artificial
+  Intelligence and Security (AISec)}, 2023.
+
+\bibitem[Hines et~al.(2024)Hines, Lopez, Hall, Zarfati, Zunger, and
+  Kiciman]{hines2024defending}
+Keegan Hines, Gary Lopez, Matthew Hall, Federico Zarfati, Yonatan Zunger, and
+  Emre Kiciman.
+\newblock Defending against indirect prompt injection attacks with
+  spotlighting.
+\newblock \emph{arXiv preprint arXiv:2403.14720}, 2024.
+
+\bibitem[Hutchins et~al.(2011)Hutchins, Cloppert, and
+  Amin]{hutchins2011intelligence}
+Eric~M. Hutchins, Michael~J. Cloppert, and Rohan~M. Amin.
+\newblock Intelligence-driven computer network defense informed by analysis of
+  adversary campaigns and intrusion kill chains.
+\newblock In \emph{Proceedings of the 6th Annual International Conference on
+  Information Warfare and Security}, 2011.
+
+\bibitem[Lee \& Tiwari(2024)Lee and Tiwari]{lee2024prompt}
+Donghyun Lee and Mo~Tiwari.
+\newblock Prompt infection: {LLM}-to-{LLM} prompt injection within multi-agent
+  systems.
+\newblock \emph{arXiv preprint arXiv:2410.07283}, 2024.
+
+\bibitem[Lynch(2025)]{lynch2026persistent}
+A.~Lynch.
+\newblock \emph{The Persistent Vulnerability of Aligned {AI} Systems}.
+\newblock PhD thesis, University College London, 2025.
+\newblock arXiv:2604.00324.
+
+\bibitem[Nasr et~al.(2025)Nasr, Carlini, Sitawarin, Schulhoff, Hayes, Ilie,
+  et~al.]{nasr2025attacker}
+Milad Nasr, Nicholas Carlini, Chawin Sitawarin, Sander~V. Schulhoff, Jamie
+  Hayes, Michael Ilie, et~al.
+\newblock The attacker moves second: Stronger adaptive attacks bypass defenses
+  against {LLM} jailbreaks and prompt injections.
+\newblock \emph{arXiv preprint arXiv:2510.09023}, 2025.
+
+\bibitem[Perez \& Ribeiro(2022)Perez and Ribeiro]{perez2022ignore}
+F{\'a}bio Perez and Ian Ribeiro.
+\newblock Ignore previous prompt: Attack techniques for language models.
+\newblock In \emph{NeurIPS ML Safety Workshop}, 2022.
+
+\bibitem[Wang et~al.(2026{\natexlab{a}})Wang, Zhou, Wang,
+  et~al.]{wang2026monitoring}
+X.~Wang, Y.~Zhou, Q.~Wang, et~al.
+\newblock Beyond content safety: Real-time monitoring for reasoning
+  vulnerabilities in large language models.
+\newblock \emph{arXiv preprint arXiv:2603.25412}, 2026{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2026{\natexlab{b}})Wang, Zou, Geng, and
+  Jia]{wang2026agentwatcher}
+Y.~Wang, W.~Zou, R.~Geng, and J.~Jia.
+\newblock {AgentWatcher}: A rule-based prompt injection monitor.
+\newblock \emph{arXiv preprint arXiv:2604.01194}, 2026{\natexlab{b}}.
+
+\bibitem[Wilson(1927)]{wilson1927probable}
+Edwin~B. Wilson.
+\newblock Probable inference, the law of succession, and statistical inference.
+\newblock \emph{Journal of the American Statistical Association}, 22\penalty0
+  (158):\penalty0 209--212, 1927.
+
+\bibitem[Xiang et~al.(2026)Xiang, Zagieboylo, Ghosh,
+  et~al.]{xiang2026architecting}
+C.~Xiang, D.~Zagieboylo, S.~Ghosh, et~al.
+\newblock Architecting secure {AI} agents: Perspectives on system-level
+  defenses against indirect prompt injection attacks.
+\newblock \emph{arXiv preprint arXiv:2603.30016}, 2026.
+
+\bibitem[Yang et~al.(2026)Yang, He, Ji, Hooi, and Dong]{yang2026zombie}
+X.~Yang, Y.~He, S.~Ji, B.~Hooi, and J.~S. Dong.
+\newblock Zombie agents: Persistent control of self-evolving {LLM} agents via
+  self-reinforcing injections.
+\newblock In \emph{Lifelong Agent Workshop at ICLR}, 2026.
+\newblock arXiv:2602.15654.
+
+\bibitem[Zhan et~al.(2024)Zhan, Liang, Ying, and Kang]{zhan2024injecagent}
+Qiusi Zhan, Zhixiang Liang, Zifan Ying, and Daniel Kang.
+\newblock {InjecAgent}: Benchmarking indirect prompt injections in
+  tool-integrated large language model agents.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  ACL 2024}, 2024.
+
+\bibitem[Zhang et~al.(2026)Zhang, Fu, Lian, et~al.]{zhang2026privilege}
+Q.~Zhang, L.~Fu, L.~Lian, et~al.
+\newblock Evaluating privilege usage of agents with real-world tools.
+\newblock In \emph{FSE Ideas, Visions and Reflections Track}, 2026.
+\newblock arXiv:2603.28166.
+
+\end{thebibliography}
