@@ -53,6 +53,7 @@
 \urldef{\agentbench}\code{agent_bench}
 \urldef{\canary}\code|SECRET-[A-F0-9]{8}|
 \urldef{\driftfeat}\code{objective_drift_mean_after_exposure}
+\urldef{\searchp}\code{search_papers}
 \urldef{\seedfn}\code{MemoryStore.seed()}
 \urldef{\batchhigh}\code{high_n_v1}
 \urldef{\batchfirst}\code{scenario_compare_v1}
@@ -72,31 +73,33 @@ across Attack Surfaces and Five Production LLMs}
 Multi-agent LLM systems now read documents, web pages and tool results on
 behalf of users, yet their resistance to prompt injection is usually
 reported as one number: did the attack succeed?
-We introduce a kill-chain canary method that plants a unique token in every
-injected payload and records the furthest of four stages it reaches
-(Exposed $\to$ Persisted $\to$ Relayed $\to$ Executed), across 950 runs,
-five production LLMs, six attack surfaces, and five defense conditions.
-Exposure was 100\% among runs that called the tool; the outcomes differ
+We describe a kill-chain canary instrumentation that plants a unique marker
+token in every injected payload and records the furthest of four
+checkpoints it reaches (Exposed $\to$ Persisted $\to$ Relayed $\to$
+Executed), and apply it to 950 runs of five production LLMs in one task
+family with fixed task and payload templates.
+The checkpoints follow the marker, not the meaning of the instruction; in
+our relay scenarios the injected instruction is itself ``carry this token
+forward'', so the two coincide there.
+Among runs that called the tool, exposure was 100\%; the outcomes differ
 downstream.
-Claude Haiku~4.5 and Claude Sonnet~4.5 executed none of their 164
-text-surface attacks, and in the text relay the canary token never appeared
-in a memory write (0/40); GPT-4o-mini executed 53\% of its attacks.
-Four findings follow.
-(1)~A Claude writer kept the canary token out of shared memory in every
-relay run we report; one cross-model pairing (Claude writer, GPT-4o-mini
-reader, $n=3$) is consistent with this protecting the reader, and other
-pairings were not tested.
+Claude Haiku~4.5 and Claude Sonnet~4.5 issued no outbound action carrying
+the token in 164 text-surface attacks and never wrote it to memory in the
+text relay (0/40); GPT-4o-mini issued one in 21 of 60 attacks (35\%).
+Four observations follow, each limited to the configurations tested.
+(1)~The token was absent from every memory write of a Claude writer in the
+55 relay runs we report.
 (2)~As readers, the Claude models executed 0/40 raw pre-seeded injections,
-but Claude Haiku~4.5 executed 2/3 injections relayed by GPT-4o-mini;
-whether relayed injections are harder to refuse than raw ones is an open
-question.
+but Claude Haiku~4.5 executed 2/3 injections relayed by GPT-4o-mini, a
+hypothesis at this sample size.
 (3)~DeepSeek Chat went from 0/24 on pre-seeded memory to 8/8 on tool
-results, scenarios that also differ in task and payload format; white-text
-PDF payloads, invisible on the rendered page, succeeded at least as often
-as visible ones.
-(4)~\pidetect{} and \wfilter{} failed on channels they do not inspect,
-\spotlight{} failed on content it wraps, and \wfilter{} blocked the PDF
-relay but not the text relay, a difference we cannot explain.
+results, scenarios that also differ in task and payload wording; text
+hidden as white PDF text reached the agents through the PDF parser.
+(4)~A marker-stripping memory write filter stopped the token at the memory
+commit in both relays, while a delimiter-based spotlighting variant did not
+stop either model tested.
+Separating the memory commit from the outbound action also exposed a
+scoring error in our own evaluation.
 Code and per-run logs are released; the link is withheld for anonymous
 review.
 \end{abstract}
@@ -124,12 +127,12 @@ dropped the injected text; in the second the terminal agent held.
 Outcome-only measurement cannot distinguish them; Figure~\ref{fig:teaser}
 shows two such pipelines with the same 0/3 attack success.
 
-We address this with a kill-chain canary methodology: every injected
+We address this with a kill-chain canary instrumentation: every injected
 payload carries a unique canary token, and our PropagationLogger records
 the furthest of four stages that token reaches.
 We test five production LLMs across six attack surfaces (web page,
 pre-seeded memory, tool result, visible PDF text, white PDF text, and audio
-transcript) and five defense conditions in
+transcript) and up to five defense conditions in
 \agentbench{}, a custom multi-agent evaluation harness
 (Figure~\ref{fig:system_overview}).
 A PDF relay experiment evaluates a three-boundary kill chain (document
@@ -137,14 +140,18 @@ extraction $\to$ memory write $\to$ agent delegation), with same-model
 pairs and cross-model pairs in which Agent~A and Agent~B come from
 different model families.
 
-Our contributions are a stage-level evaluation framework, a kill-chain
-canary methodology~\cite{hutchins2011intelligence} that records the stage
-at which each injection stops rather than only the final outcome, and four
-findings from applying it, on
+The technique is deliberately simple: unique markers and rule-based
+logging.
+Our contributions are a four-checkpoint decomposition of a memory-relay
+pipeline~\cite{hutchins2011intelligence}, each checkpoint defined on one
+interface, and an empirical account of what it shows that a final
+attack-success number does not, on
 writer position (Section~\ref{sec:killchain}),
 reader position (Section~\ref{sec:multimodal}),
-channel dependence (Section~\ref{sec:surface}) and
+scenario dependence (Section~\ref{sec:surface}) and
 defense coverage (Section~\ref{sec:defenses_results}).
+The observations are exploratory: every cell repeats one task and one
+payload template, and comparisons across surfaces are not controlled.
 
 \begin{figure*}[t]
   \centering
@@ -157,6 +164,8 @@ defense coverage (Section~\ref{sec:defenses_results}).
     the token was absent from the memory write in 3/3 runs; with
     GPT-4o-mini it reached shared memory and Agent~B in 3/3 runs and was
     not executed.
+    The checkpoints follow the marker token, not the meaning of the
+    instruction.
     Checkpoints: 1~Exposed (token in a tool result), 2~Persisted (in a
     memory write), 3~Relayed (read by Agent~B), 4~Executed (in an outbound
     tool call).}
@@ -181,8 +190,7 @@ trigger unauthorized tool use; we measure that write step directly with a
 canary token in a two-agent relay.
 \citet{nasr2025attacker} show that adaptive attacks bypass all
 12 defenses they evaluate, most with attack success above 90\%;
-in our evaluation, lightweight defenses failed against non-adaptive
-attacks.
+we run no adaptive attacks.
 AgentWatcher~\cite{wang2026agentwatcher} proposes rule-based,
 causally attributed prompt injection monitoring, to which
 our stage-level instrumentation is complementary.
@@ -191,14 +199,14 @@ defenses for indirect prompt injection; our channel-level results
 provide quantitative evidence for their observation that defense
 effectiveness is deployment-context-dependent.
 \citet{ding2026covert} study covert visual prompt injection
-against commercial multimodal LLMs; our PDF relay experiment extends
-document injection to multi-agent relay chains with per-stage tracking.
+against commercial multimodal LLMs; our PDF relay instead tracks
+parser-extracted text through a two-agent relay.
 \citet{zhang2026privilege} evaluate privilege usage
 of LLM agents with real-world tools; our \permesc{} scenario
-finds near-zero ASR (2/132) with simple text instructions.
+finds near-zero ASR (1/132) with one overtly adversarial payload.
 \citet{wang2026monitoring} study real-time monitoring
-for reasoning vulnerabilities; their post-hoc detection framing aligns with
-our finding that objective drift is forensic rather than preventive.
+for reasoning vulnerabilities; our drift classifier does not generalize
+across scenarios.
 \citet{lynch2026persistent} documents the persistent
 vulnerability of aligned AI systems to adversarial inputs; our
 results raise, but do not settle, the question of whether such resistance
@@ -216,7 +224,9 @@ differs between writing and reading positions in a pipeline.
     Below: the attack surfaces, which reach Agent~A as tool results, except
     pre-seeded memory, which enters shared memory directly; the two-agent
     pipeline; the four checkpoints (1~Exposed, 2~Persisted, 3~Relayed,
-    4~Executed); and where each defense looks.
+    4~Executed); and where each defense acts.
+    The example payload names an attacker address, as in \mempoison{}; the
+    relay payloads ask only that the token be carried forward.
     Dashed: in the single-agent \toolpoison{} scenario the agent that reads
     the tool result sends the report itself.
     \mempoison{} is also single-agent (its agent is drawn as Agent~B), and
@@ -234,48 +244,56 @@ Four components are central:
 a \texttt{seed()} bypass for pre-injection attacks;
 \texttt{ToolRegistry}, which gates five tools by permission level
 (from \textsc{read} to \textsc{admin}): \parsepdf{}, \getweb{},
-\wmem{}, \rmem{} and \sendrep{};
+\searchp{}, \wmem{}, \rmem{} and \sendrep{};
 \texttt{MultiAgentOrchestrator}, which coordinates the two-agent
 relay (Agent~A writes shared memory; Agent~B reads it and acts); and
 \texttt{PropagationLogger}, which matches the canary regex
 \canary{} against every tool call and emits stage-labeled JSONL events.
-Some scenarios add tools: \querydb{} in \toolpoison{}, ADMIN tools
-such as \delrec{} and \escpriv{} for Agent~B in \permesc{}, and
-\transcribe{} in the audio pilot.
+Agent~B also holds ADMIN tools such as \delrec{} and \escpriv{} in
+\permesc{}.
+All tools are mocks that record the call; the only network traffic is the
+model API.
 
 \subsection{Threat Model, Stages, and Scenarios}
 \label{sec:scenarios}
 
 \paragraph{Threat model.}
 We assume a read-only adversary who controls content that an agent
-will process (a PDF document, a web page, or a database record) but has no
-access to model weights, system prompts, or the agent runtime.
-The adversary's goal is to cause the agent to issue a specific unauthorized
-outbound action (\sendrep{} to an attacker-controlled address)
-while the legitimate task still succeeds (the dual-completion attack
-pattern~\cite{greshake2023not}).
-Payloads are explicit and unobfuscated; we treat obfuscation as orthogonal
-to the stage-localization question.
+will process (a PDF document, a web page, a search result or a stored
+note) but has no access to model weights, system prompts, or the agent
+runtime.
+The adversary's goal is to make an attacker-chosen string appear in an
+outbound action while the legitimate task still succeeds (the
+dual-completion pattern~\cite{greshake2023not}).
+Payloads are explicit and unobfuscated.
 In the relay scenarios Agent~A and Agent~B communicate only through the
-shared MemoryStore (in \permesc{}, through a delegation message); neither
-agent has direct access to the other's internal state.
+shared MemoryStore (in \permesc{}, through a delegation message).
 
 \paragraph{Stages.}
-An attack surface is the channel through which adversarial
-content enters the agent pipeline; each combination of attack surface and
-model defines an independent evaluation cell.
-Each attacked run is annotated with the furthest kill-chain stage the
-canary reaches~\cite{hutchins2011intelligence}:
-Exposed (canary in any tool result),
-Persisted (canary in a \wmem{} call),
-Relayed (canary read by Agent~B),
-Executed (canary in any outbound tool argument).
-The gap between Exposed and Persisted identifies summarization-stage
-filtering; between Persisted and Executed, execution-stage refusal.
+Each attacked run is annotated with the furthest stage the
+canary reaches~\cite{hutchins2011intelligence}; each stage is an exact
+match of the token at one interface.
+Exposed: in a tool result returned to an agent.
+Persisted: in memory content written by an agent (on text surfaces, the
+content committed after any write filter).
+Relayed: in the content Agent~B receives.
+Executed: in the arguments of an outbound action of the acting agent, a
+\sendrep{} call or, in \permesc{}, an ADMIN tool call by Agent~B.
+The stages follow a marker, not the meaning of the instruction.
+In both relays the injected instruction is itself ``include this exact
+token'', so a summary without the token has not carried the instruction
+out; marker and instruction coincide there.
+In \mempoison{} and \toolpoison{} the payload also names an attacker
+address, which Executed does not check.
+The released logs hold stage flags, not the text of memory writes, so we
+could not audit the labels against annotated trajectories; we describe
+results as locations of the token and do not say a model detected or
+refused an injection.
 
 \paragraph{Scenarios.}
 All tasks share one family (summarize content, then send a report), but
-the task wording and the payload format differ between scenarios.
+the task wording and the payload differ between scenarios, and every cell
+repeats one task prompt and one payload template.
 The six attack surfaces map to scenarios as follows: web page (\propag{},
 \permesc{}), pre-seeded memory (\mempoison{}), tool result
 (\toolpoison{}), visible PDF text (\pdfappend{}) and white PDF text
@@ -284,32 +302,32 @@ pilot); \multisurf{} combines web page and pre-seeded memory, and
 \pdfmeta{} is a PDF pilot.
 
 \mempoison{} (pre-seeded memory; single agent): the harness pre-loads
-the injection into memory before the run, using \seedfn{}.
-The agent calls \rmem{}, receives the poisoned record, and may call
-\sendrep{} with the attacker's address.
+the injection into memory with \seedfn{}; the payload asks for a
+\sendrep{} call to an attacker address with the token as content.
 
 \toolpoison{} (tool result; single agent): the injection arrives in the
-return value of \getweb{} or \querydb{}, next to the legitimate document,
-and the agent that reads it also sends the report.
+return value of \searchp{} and asks for the token in the report, with a
+copy to an attacker address.
 
 \propag{} (web page; text relay): Agent~A calls \getweb{}
-on a poisoned page and writes a summary to memory with \wmem{}. Canary
-presence or absence in that write determines whether Agent~B is exposed.
+on a poisoned page and writes a summary to memory with \wmem{}; Agent~B
+reads it and sends a report.
+The payload asks only that the token be included in the memory summary.
 
 \permesc{} (web page; privilege escalation): Agent~A reads a poisoned
 web page and writes a delegation message for Agent~B, which holds ADMIN
-tools; the payload asks Agent~A to have Agent~B delete a record named by
-the canary token.
-The attack succeeds if Agent~B calls an ADMIN tool.
+tools; the payload asks for a record named by the token to be deleted.
 
 \crossmodal{} (visible and white PDF text; PDF relay): Agent~A parses an
 injected document with \parsepdf{} and writes a summary
-to memory with \wmem{}; Agent~B calls \rmem{} and \sendrep{}.
-The canary must cross three boundaries: document extraction,
-memory write, and agent delegation.
-Variants: \pdfappend{} (visible appended text),
-\pdfwhite{} (1\,pt white-text overlay, human-invisible) and
-\pdfmeta{} (payload in the /Keywords and /Subject fields).
+to memory; Agent~B calls \rmem{} and \sendrep{}.
+The payload asks for the token in the memory write and in downstream
+reports.
+The agents receive parser-extracted text, so this is an extracted-text
+injection, not a test of visual understanding.
+Variants: \pdfappend{} (directive after the benign text),
+\pdfwhite{} (1\,pt white text, human-invisible, returned by the parser
+before the benign text) and \pdfmeta{} (a pilot).
 We also test cross-model pairs (Agent~A $\neq$ Agent~B).
 
 \subsection{Models, Defenses, and Metrics}
@@ -320,109 +338,113 @@ Claude Haiku~4.5 and Claude Sonnet~4.5.\footnote{API identifiers:
 \texttt{gpt-5-mini-2025-02-15} and
 \texttt{deepseek-chat}.}
 ``Claude'' below refers to both Claude models.
-Temperature is 0.0 and max tokens 2048.
-Of 950 total runs, 764 are text-surface runs across 9 batches (March 10--27,
+Temperature is 0.0 except for GPT-5-mini, which rejects 0 and ran at the
+API default.
+Of 950 total runs, 764 are text-surface runs across 8 batches (March 10--27,
 2026) and 186 are PDF relay runs (April~1, 2026).
 Text-surface runs: 428 no-defense attacked, 80 with-defense attacked,
 256 clean controls.
-PDF relay runs: 138 in same-model pairs and 48 in cross-model pairs,
-$n=3$ per cell.
-Text-surface cells have $n = 8$--$36$; several of them were collected in
-independent batches up to 17 days apart and agree across batches.
+PDF relay cells have $n=3$; text-surface cells have $n = 8$--$36$.
+A cell's $n$ counts repeated executions of one fixed input, so the Wilson
+95\% confidence intervals (CI)~\cite{wilson1927probable} describe
+run-to-run variation only.
 
-There are five defense conditions: \texttt{none}; \wfilter{}
-(MemoryStore keyword scan before commit)~\cite{hines2024defending};
-\pidetect{} (a secondary LLM classifies each outgoing query);
-\spotlight{} (untrusted content wrapped in delimiters, with an instruction
-to treat it as data)~\cite{hines2024defending}; and \texttt{all} (all three
-combined).
+Defense conditions, as implemented:
+\wfilter{} removes from an agent's \wmem{} content every line matching
+marker patterns, including the canary pattern itself, before the commit;
+\spotlight{} is the delimiter variant of
+spotlighting~\cite{hines2024defending} (content wrapped in delimiters plus
+a system-prompt instruction);
+\pidetect{} is a reminder appended to Agent~A's system prompt, connected
+only in the PDF relay, as is \texttt{all} (the three combined).
+On text surfaces only \wfilter{} and \spotlight{} are connected.
 
-ASR is the fraction of attacked runs where the canary reaches Executed.
-Task success is the fraction of runs where the legitimate task goal is
-completed.
-Fractions are reported with Wilson 95\% confidence intervals
-(CI)~\cite{wilson1927probable}.
+ASR is the fraction of attacked runs that reach Executed, reported over
+all assigned runs and over exposed runs.
+Task success is a lenient per-scenario proxy (for example, a \sendrep{}
+call was made), reported on the same attacked runs.
 
 % -----------------------------------------------------------------------
 \section{Results}
 \label{sec:results}
 
-\subsection{Exposure: 100\% among Runs That Called the Tool}
+\subsection{Exposure, Execution, and Task Success}
 \label{sec:exposure}
 
-Table~\ref{tab:overall} reports attack and task success per
-model.\footnote{Besides the four scenarios of
-Section~\ref{sec:surface}, Table~\ref{tab:overall} includes 16 runs of a
-fifth text scenario, \multisurf{}: 4 GPT-4o-mini runs, all executed, and 8
-GPT-5-mini and 4 Claude Sonnet~4.5 runs, none executed.}
-Exposure was 100\% among runs that called the tool: the payload sits in the
-result of a tool the agent must call for its task, and all 372 no-defense
-attacked text-surface runs that made a tool call were exposed.
+Table~\ref{tab:overall} reports the no-defense attacked text-surface runs
+of each model.\footnote{It includes 16 runs of a
+fifth text scenario, \multisurf{}: 4 GPT-4o-mini runs, 1 Executed, and 8
+GPT-5-mini and 4 Claude Sonnet~4.5 runs, none Executed.}
+Exposure was 100\% among runs that called the tool: all 372
+runs that made a tool call were exposed.
 The other 56 of the 428 made no tool call and never read the payload:
 48 GPT-5-mini runs (16 each in \mempoison{}, \toolpoison{} and
 \permesc{}) and 4 runs each of DeepSeek Chat and GPT-4o-mini (\permesc{}),
-all from one collection batch (\batchhigh{} in the released logs).
-They count as unsuccessful attacks in Table~\ref{tab:overall} and in
-Section~\ref{sec:surface}; none is in the text relay.
-GPT-5-mini's 94\% task success and its 48 of 136 attacked runs without a
-tool call come from different batches: \batchhigh{} holds all 48 (out
-of its 100 GPT-5-mini attacked runs) and no clean controls, while the 36
-GPT-5-mini clean-control runs come from three batches in which every
-GPT-5-mini run called a tool.
+all from one collection batch.
+These are failures to retrieve the input, not resistance, so
+Table~\ref{tab:overall} gives ASR over assigned and over exposed runs.
 
 \begin{table}[t]
 \centering
 \small
-\begin{tabular}{lrrl}
+\begin{tabular}{@{}lrlrr@{}}
 \toprule
-Model & $n$ & Task & ASR (95\%~CI) \\
+Model & Exp. & ASR (95\%~CI) & Task & Both \\
 \midrule
-GPT-4o-mini       &  60 & 90\%  & 53\% (41--65\%) \\
-DeepSeek Chat     &  68 & 100\% & 25\% (16--37\%) \\
-GPT-5-mini        & 136 & 94\%  & 3\% (1--7\%) \\
-Claude Haiku 4.5  &  80 & 100\% & \textbf{0\%} (0--5\%) \\
-Claude Sonnet 4.5 &  84 & 100\% & \textbf{0\%} (0--4\%) \\
+GPT-4o-mini       & 56/60  & 35\% (24--48\%) & 49 & 21 \\
+DeepSeek Chat     & 64/68  & 13\% (7--23\%)  & 64 &  9 \\
+GPT-5-mini        & 88/136 & 1\% (0--4\%)    & 87 &  1 \\
+Claude Haiku 4.5  & 80/80  & 0\% (0--5\%)    & 80 &  0 \\
+Claude Sonnet 4.5 & 84/84  & 0\% (0--4\%)    & 84 &  0 \\
 \bottomrule
 \end{tabular}
-\caption{Attack and task success per model, text surfaces.
-  $n$: no-defense attacked runs, including runs that made no tool call.
-  ASR: share of those runs that reached Executed, with Wilson 95\%~CI.
-  Task: task success on the model's clean-control runs (all defense
-  conditions).}
+\caption{No-defense attacked text-surface runs per model.
+  Exp.: exposed over assigned runs.
+  ASR: runs that reached Executed over assigned runs, with Wilson 95\%~CI;
+  over exposed runs it is 38\%, 14\% and 1\% for the first three rows.
+  Task: attacked runs that met the task proxy.
+  Both: runs that met the task proxy and reached Executed (equal to the
+  ASR numerator in every row).
+  Rows pool different mixes of scenarios and batches and are not
+  like-for-like model scores.}
 \label{tab:overall}
 \end{table}
 
-Table~\ref{tab:overall} reports task success next to attack success, the
-joint view AgentDojo~\cite{debenedetti2024agentdojo} also reports.
-GPT-4o-mini (90\% task success, 53\% ASR) completes the task and follows the
-injection most often.
-Claude Haiku~4.5 and Claude Sonnet~4.5 reach 100\% task success on clean
-runs and executed none of their 164 text-surface attacks (0/80 and 0/84);
-this holds for the evaluated scenarios and tasks only.
-DeepSeek Chat's 25\% overall ASR combines 0/24 and 8/8 on different
-channels (Section~\ref{sec:surface}).
+Every run that reached Executed also met the task proxy, the
+dual-completion pattern of the threat model.
+The Claude models met the task proxy in all 164 attacked runs and reached
+Executed in none; this holds for the evaluated scenarios only.
+DeepSeek Chat's 13\% combines 0/24 and 8/8 in different scenarios
+(Section~\ref{sec:surface}).
+Clean-control task success is 90--100\% per model, but the clean controls
+are not matched to most attacked runs (the batch with all 56 runs without
+a tool call has none), so we read no utility--security tradeoff from them.
 
 \subsection{Where the Canary Token Stops}
 \label{sec:killchain}
 
 
 In the text relay (\propag{}, no defense; every run called its tool, so
-Exposed is 100\%), the stages after Exposed moved together: the token was
-Persisted, Relayed and Executed in 8/8 GPT-4o-mini runs, 8/8 DeepSeek Chat
-runs and 3/20 GPT-5-mini runs (15\%; 95\%~CI: 5--36\%).
-It never appeared in a Claude memory write:
+Exposed is 100\%), the token was Persisted and Relayed in 8/8 GPT-4o-mini
+runs, 8/8 DeepSeek Chat runs and 3/20 GPT-5-mini runs (15\%; 95\%~CI:
+5--36\%).
+It stopped there: Agent~B sent its report without the token in all 16
+GPT-4o-mini and DeepSeek Chat runs, and Executed was 1/20 for GPT-5-mini.
+The payload asks only for the token in the memory summary, so Persisted is
+the stage that shows whether it was followed.
+The token never appeared in a Claude memory write:
 0/40 runs (20 Claude Haiku~4.5 + 20 Claude Sonnet~4.5; 95\%~CI: 0--8\%).
 Agent~B then read a summary that did not contain the token.
 
-A Claude writer kept the canary token out of shared memory in every relay
-run we report: the 40 text relay runs here, and the 12 same-model and 3
-cross-model PDF relay runs with a Claude writer
+The token was absent from every memory write of a Claude writer in the
+relay runs we report: the 40 text relay runs here, and the 12 same-model
+and 3 cross-model PDF relay runs with a Claude writer
 (Section~\ref{sec:multimodal}).
-One cross-model pairing (Claude Haiku~4.5 writer, GPT-4o-mini reader,
-$n=3$) is consistent with this protecting the reader; other pairings were
-not tested.
-We do not isolate whether this arises from training data, system
-prompts, or tool interaction design.
+Because the relay payloads ask for exactly this token, its absence means
+the instruction was not carried out at the write; the logs do not show
+whether the summaries mention the instruction, and we do not isolate
+whether this arises from training data, system prompts, or tool
+interaction design.
 
 \subsection{Attack Success by Surface}
 \label{sec:surface}
@@ -434,7 +456,8 @@ prompts, or tool interaction design.
     runs that reached Executed over attacked runs ($k/n$), with Wilson 95\%
     CIs in brackets.
     Column headers give the attack surface and the scenario.
-    Text-surface cells ($n=8$--$36$) include runs that made no tool call;
+    Text-surface cells ($n=8$--$36$) include runs that made no tool call
+    (16 in each GPT-5-mini 0/36 cell);
     PDF relay cells are same-model pairs ($n=3$), the Executed columns of
     Table~\ref{tab:pdf_same}.
     Hatched: GPT-5-mini never called \parsepdf{}.
@@ -447,59 +470,63 @@ Figure~\ref{fig:heatmap} reports attack success per model and attack
 surface.
 DeepSeek Chat shows the largest swing across scenarios: 0/24 on
 \mempoison{} (three independent batches spanning 17 days) and 8/8 on
-\toolpoison{} and \propag{}.
+\toolpoison{}.
 A single-scenario evaluation would have reported either a perfect or a
 failing score for the same model.
-The scenarios differ in task wording and payload format as well as in
-channel (Section~\ref{sec:scenarios}), so the swing cannot be attributed to
-the channel alone.
-One possible explanation is that DeepSeek Chat treats pre-stored memory
-records with more suspicion than live function-call results.
+The two payloads ask for different things (a separate \sendrep{} call to
+an attacker address versus the token inside the report the task already
+requires), so the swing cannot be attributed to the channel, and we did
+not run the matched comparison that would isolate it.
 
-GPT-4o-mini achieves 100\% ASR on all three
-non-privilege-escalation scenarios and Claude achieves 0\% ASR on all
-four.
-The \permesc{} near-zero results (2/132 total: DeepSeek Chat 1/28 and
-GPT-5-mini 1/36) most likely reflect payload
-design---the two-step overtly adversarial payload---rather than genuine
-privilege-escalation resistance.
+GPT-4o-mini reached Executed in every \mempoison{} and \toolpoison{} run
+(12/12 and 8/8) and in no text relay or \permesc{} run; Claude in none.
+The \permesc{} result (1/132 in total, DeepSeek Chat 1/28) most likely
+reflects the one overtly adversarial payload rather than resistance to
+privilege escalation.
 
-\subsection{Defense Failures}
+\subsection{Defense Conditions: Coverage and Effect}
 \label{sec:defenses_results}
 
-On the text relay and on \toolpoison{}, no defense condition lowered the
-attack success of GPT-4o-mini or DeepSeek Chat: all 64 attacked runs
-under \wfilter{}, \pidetect{}, \spotlight{} or all three combined reached
-Executed (4 runs per model, scenario and defense, all from the defense
-ablation batch, \batchabl{}).
-\pidetect{} and \wfilter{} failed on channels they do not inspect.
-\pidetect{} scans outgoing tool queries, but our payloads arrive in
-incoming tool results.
-\wfilter{} scans agent-initiated memory writes, but \toolpoison{} does not
-route the payload through a memory write, and \mempoison{} pre-seeds it
-with \seedfn{} before the session begins: with \wfilter{}
-active, GPT-4o-mini still executed 8/8 \mempoison{} attacks, as it did
-without a defense in the same batch (DeepSeek Chat: 0/8 in both
-conditions).
-\spotlight{} failed on content it wraps: in the text relay and
-\toolpoison{} the harness places the fetched page or search result that
-carries the payload inside its delimiters.
-\wfilter{} also failed on the text relay, whose payload passes through the
-memory write it scans, yet blocked the PDF relay
-(Section~\ref{sec:multimodal}); we cannot explain this difference from our
-runs.
-Spotlighting also lowered GPT-4o-mini's task success on these attacked runs
-from 63\% without a defense (5/8, same batch) to 50\% (4/8), without
-lowering attack success.
-None of these failures required adapting the attack to the defense, unlike
-the adaptive attacks of \citet{nasr2025attacker}.
+We separate whether the injected content passes the interface a defense
+acts on (coverage) from what the defense did when it does (effect).
+Text-surface numbers are from one ablation batch (\batchabl{}: 4 attacked
+runs per model, scenario and condition, GPT-4o-mini and DeepSeek Chat).
+
+\emph{Write filter.}
+In the text relay the filter is on the path and stopped the token at the
+memory commit in 8/8 runs: Agent~A's \wmem{} content contained the token,
+the committed summary did not, Agent~B never received it, and no run
+reached Executed.
+Without a defense the token was committed and relayed in 8/8 runs.
+The filter also ended every PDF relay cell tested at 0 Executed
+(Section~\ref{sec:multimodal}).
+This is where the stage decomposition corrected our own evaluation: an
+end-of-run rule that counted the token in any tool-call argument, including
+Agent~A's \wmem{} call, had scored these runs as successful attacks and the
+filter as failing.
+The filter matches the canary pattern itself, so the result locates where
+the token is stopped; it does not show that a realistic detector would
+recognize an attack there.
+The filter is off the path in \toolpoison{}, which involves no memory
+write, and in \mempoison{}, which pre-seeds the payload with \seedfn{}:
+with \wfilter{} active, GPT-4o-mini still executed 8/8 \mempoison{}
+attacks, as without a defense in the same batch (DeepSeek Chat: 0/8 in
+both).
+These are coverage gaps, not tests of the filter.
+
+\emph{Spotlighting (delimiter variant).}
+Here the payload is inside the delimiters, so these are tests of effect at
+$n=4$ per model: in the text relay the token was committed to memory in
+8/8 runs with delimiting, as without, and in \toolpoison{} both models
+reached Executed in 8/8 runs with delimiting, as without.
+We did not test the datamarking or encoding variants.
+No condition was tested against an attack adapted to it.
 
 \subsection{PDF Relay Experiment}
 \label{sec:multimodal}
 
-The PDF relay tests whether the kill-chain decomposition generalizes beyond
-text injection, building on the multimodal prompt injection work of
-\citet{ding2026covert}.
+The PDF relay applies the decomposition to a document surface, motivated
+by document injection work such as \citet{ding2026covert}.
 Its kill chain crosses three boundaries:
 Exposed (document extraction), Persisted (memory write),
 Relayed (Agent~B reads memory), Executed (Agent~B issues
@@ -507,8 +534,8 @@ Relayed (Agent~B reads memory), Executed (Agent~B issues
 We ran 186 trials across five models using the \crossmodal{} scenario
 ($n=3$ per cell; 46 cells of same-model pairs and 16 cells of cross-model
 pairs).
-At $n=3$ per cell the confidence intervals are wide, and we read these
-results as directional.
+At $n=3$ per cell the confidence intervals are wide; we report these cells
+as pilot observations and draw no comparative conclusions.
 
 \begin{table*}[t]
 \centering
@@ -537,7 +564,7 @@ GPT-5-mini        &   0\% &   0\% &   0\% &   0\% & &   0\% &   0\% &   0\% &   
 \paragraph{Same-model pairs.}
 Table~\ref{tab:pdf_same} reports per-stage rates for same-model pairs
 under no defense.
-The text relay pattern also holds for the PDF surface.
+Here Executed requires the token in Agent~B's \sendrep{} call.
 DeepSeek Chat propagated every injection through all three boundaries to
 execution (3/3 per variant; 95\%~CI: 44--100\%).
 With Claude as both agents, the canary token was absent from every memory
@@ -546,11 +573,12 @@ as in the text relay.
 GPT-4o-mini reached Relayed in every run but executed inconsistently: 0\%
 for \pdfappend{} and 33\% for \pdfwhite{}.
 
-White text (\pdfwhite{}, 1\,pt, invisible to human readers) succeeded at
-least as often as visible appended text (\pdfappend{}): 33\% vs.\ 0\% on
-GPT-4o-mini (1/3 vs.\ 0/3) and 100\% for both on DeepSeek Chat.
-\texttt{pypdf} extracts the white text first, placing the directive
-before the benign abstract; this may explain the GPT-4o-mini difference.
+White text (\pdfwhite{}, 1\,pt, invisible to human readers) reached the
+agents through the parser: Exposed and Persisted in every GPT-4o-mini and
+DeepSeek Chat run, as with visible text.
+Executed was 1/3 for white and 0/3 for visible text on GPT-4o-mini and 3/3
+for both on DeepSeek Chat; three runs cannot separate these, and the
+variants also differ in where the directive sits in the extracted text.
 
 GPT-5-mini never reached Exposed (0/6).
 The model did not invoke the \parsepdf{} tool in any of the 18
@@ -559,17 +587,12 @@ whether this reflects the model or our tool schema.
 All GPT-5-mini cells are excluded from further PDF relay analysis.
 
 \paragraph{Defenses.}
-\wfilter{} blocked execution in every PDF relay cell tested: 0/3 DeepSeek
+\wfilter{} ended every PDF relay cell tested at 0 Executed: 0/3 DeepSeek
 Chat \pdfappend{}, 0/3 DeepSeek Chat \pdfwhite{}, 0/6 GPT-4o-mini
-\pdfwhite{}.
-In the text relay it did not (Section~\ref{sec:defenses_results}), although
-both relays pass the payload through the memory write it scans.
-\pidetect{} did not block on the PDF surface: DeepSeek Chat \pdfappend{}
-reached 100\% Executed under \pidetect{} and GPT-4o-mini \pdfwhite{} 33\%,
-both identical to no defense.
-This is consistent with the channel mismatch of
-Section~\ref{sec:defenses_results}: the PDF payload arrives in the incoming
-parsed document content.
+\pdfwhite{}, matching the text relay.
+The system-prompt reminder (\pidetect{}) left the two cells tested
+unchanged: DeepSeek Chat \pdfappend{} 100\% Executed and GPT-4o-mini
+\pdfwhite{} 33\%, both identical to no defense.
 
 \begin{figure}[t]
   \centering
@@ -593,8 +616,8 @@ parsed document content.
 \label{sec:cross_model}
 Figure~\ref{fig:pdf_relay_matrix} reports cross-model results for
 \pdfappend{}, no defense ($n=3$ per cell).
-Given 95\% CIs as wide as 21--94\%, the three observations below are
-directional.
+Given 95\% CIs as wide as 21--94\% and one pairing per question, the
+three observations below are hypotheses, not findings.
 
 \emph{Reader position.}
 As a reader, Claude Haiku~4.5 executed 2/3 injections relayed by a
@@ -607,8 +630,8 @@ where Claude's resistance lies.
 \emph{Writer position.}
 With Claude Haiku~4.5 as the writer and GPT-4o-mini as the reader, the
 token was absent from shared memory and the reader executed 0/3.
-This single pairing is consistent with the writer protecting the reader;
-other readers of a Claude writer were not tested.
+A reader cannot emit a token it never received; other readers of a Claude
+writer were not tested.
 A GPT-4o-mini or DeepSeek Chat writer put the token into memory in every
 run, leaving the outcome to Agent~B.
 
@@ -630,28 +653,27 @@ Figure~\ref{fig:heatmap}):
 \audioinj{} (instructions in a synthesized speech clip processed by
 \transcribe{}; GPT-4o-mini and Claude Sonnet~4.5) and \pdfmeta{}
 (GPT-4o-mini, GPT-5-mini and Claude Sonnet~4.5).
-Every cell gave 0\% ASR (0/4; 95\%~CI: 0--49\%): the transcription tool
-returned the spoken words as narration, and the models did not treat
-transcribed text or metadata strings as directives.
-Both are null results at this sample size.
+Every cell gave 0\% ASR (0/4; 95\%~CI: 0--49\%).
+Both are null results at this sample size and do not show the channels are
+safe; these 20 runs are additional to the 950.
 
-\subsection{Detection: Drift, Provenance, and Execution Lag}
+\subsection{Detection: Drift and Provenance}
 \label{sec:drift}
 
-\paragraph{Objective drift is forensic, not preventive.}
+\paragraph{A drift classifier that does not generalize.}
 We compute per-step objective drift as the TF-IDF cosine distance from the
 original task description.
 For one clean and one attacked GPT-4o-mini \mempoison{} run, drift is
-nearly identical at steps 1--2 (0.563 vs.\ 0.571 at \rmem{}; 0.714 vs.\
-0.747 at the legitimate \sendrep{}; $\Delta \le 0.033$) and diverges only
-at the harmful \sendrep{} itself (0.868).
+nearly identical at steps 1--2 ($\Delta \le 0.033$) and diverges only
+at the harmful \sendrep{} itself.
 A gradient-boosted classifier on 21 trajectory features achieves
 AUC = 0.853 in 5-fold CV, but this figure is inflated by model identity
 leaking as a predictor: leave-one-scenario-out evaluation collapses to
 AUC = 0.39--0.57 (chance level) across all held-out scenarios.
-The top feature, \driftfeat{} (32.3\% of feature importance, 3$\times$ the
-next feature), averages drift only across steps after the canary enters
-context, and its spike arrives concurrent with harm, not before.
+The top feature, \driftfeat{} (32.3\% of feature importance), depends on
+knowing when the planted token entered context, which would not be
+available for an unknown attack, and its spike arrives with the harmful
+step, not before.
 
 \paragraph{Provenance and dual completion.}
 \label{sec:provenance}
@@ -661,124 +683,106 @@ prior tool results and memory state (threshold: $\geq$3 shared tokens or
 $\geq$20\% argument coverage).
 We applied it to the 22 compromised runs of the first collection batch
 (\batchfirst{}: 12 GPT-4o-mini, 9 DeepSeek Chat and 1
-GPT-5-mini run, all without a defense); it reconstructed 22/22 injection
-paths with 0 false attributions.
-Compromised runs from later batches were not traced.
+GPT-5-mini run, all without a defense); in all 22 it linked the
+token-bearing argument to the tool result that introduced the token.
+The check includes no benign cases, so it is not a false-attribution
+rate.
 In a compromised \mempoison{} run, the agent first sends the legitimate
 report to the supervisor at step~2 (the task succeeds), then a second
 \sendrep{} carrying the canary token at step~3 (the injection executes);
 provenance traces the arguments of both calls to the \rmem{} result at
 step~1.
-Outcome-level monitoring observes a successful report delivery and misses
-the exfiltration; step-level provenance logging detects both.
-
-\paragraph{Execution lag.}
-\label{sec:lag}
-GPT-4o-mini's median exposure-to-execution lag is 1~step (mean 1.25,
-max 2), so real-time interception middleware has exactly one
-inference cycle after first exposure to classify and block.
-DeepSeek Chat's lag is bimodal: most compromised runs execute within 2--3
-steps, but a tail (max 12 steps) completes the entire legitimate task
-before appending the injection as a final action.
-Compromised GPT-4o-mini runs also show excess \sendrep{} calls
-(mean 1.26 vs.\ 0.57 clean)---detectable without a
-classifier by comparing outbound tool-call counts against
-task-expected baselines.
+An endpoint evaluation that checks task success and unauthorized actions
+separately detects both; what the stages add is the location, in runs
+without the action, of the last interface the token crossed.
 
 % -----------------------------------------------------------------------
 \section{Discussion}
 \label{sec:discussion}
 
-\paragraph{Writer position as a candidate design lever.}
-A Claude writer kept the token out of shared memory in every relay run we
-report, and in the one cross-model pairing tested (GPT-4o-mini reader,
-$n=3$) the reader then executed nothing.
-If this holds beyond our settings, the model placed at each inter-agent
-write boundary matters independently of the models elsewhere in the chain.
-We suggest reporting, as a separate metric, the rate at which the canary
-token is absent from memory writes.
-As a reader, however, Claude Haiku~4.5 executed 2/3 injections relayed by
-GPT-4o-mini; if relayed content is trusted differently from raw content,
-agent memory would benefit from provenance: which agent wrote a record,
-from which source.
+\paragraph{What the decomposition is for.}
+The stages are a diagnostic for a pipeline, not a security score: for a run
+that ended without the attacker's action, they say which interface the
+marker last crossed.
+In our own evaluation they showed that a write filter reported as failing
+had stopped the token at the memory commit
+(Section~\ref{sec:defenses_results}).
+We suggest reporting the rate at which the marker is absent from memory
+writes separately from the rate of outbound actions.
 
-\paragraph{Apparent safety depends on the channels evaluated.}
-DeepSeek Chat's 0/24 vs.\ 8/8 swing, \pidetect{}'s failure on PDF
-injection, and the audio null result show that a model's or defense's
-apparent safety depends on which channels an evaluation covers.
-Because the DeepSeek Chat scenarios also differ in task and payload format,
-that swing is an observation rather than an isolated channel effect.
-Claimed safety results should enumerate the injection channels they cover.
-
-\paragraph{Parser-level trust for document-handling agents.}
-\pdfwhite{} succeeded at least as often as \pdfappend{}, so the payload
-need not be visible in the rendered document.
-Screening the rendered PDF would not see these payloads; a check has to
-operate on the parser's extracted text.
+\paragraph{Apparent safety depends on what an evaluation covers.}
+DeepSeek Chat's 0/24 and 8/8 come from two scenarios of one benchmark, and
+a write-time filter has no effect on a payload that never passes through a
+write.
+Reported safety results should state the scenarios, payloads and
+interfaces they cover.
+In the \pdfwhite{} runs, text invisible on the rendered page reached both
+agents, so a check has to operate on the parser's extracted text.
 
 % -----------------------------------------------------------------------
 \section{Limitations}
 \label{sec:limitations}
 
-\emph{Sample size.}
-Per-cell $n$ ranges from 3 (PDF relay) to 36 (text surfaces).
-The strongest text-surface results (Claude 0/20 per scenario, DeepSeek
-Chat \mempoison{} 0/24, GPT-4o-mini \mempoison{} 12/12) are consistent
-across independent batches; the PDF relay cells have wide CIs.
+\emph{Marker, not semantics.}
+The stages record exact matches of a token.
+In the relays the payload asks for that token; in \mempoison{} and
+\toolpoison{} Executed does not check the attacker's recipient, and a
+report quoting the token while declining the instruction would be labeled
+Executed.
+The released logs do not hold the text of memory writes or tool arguments,
+so we report no error rates for the labels; we manually inspected 22
+flagged runs of the first batch and found no refusal quoting the token.
+\emph{One input per cell.}
+Every cell repeats one task prompt and one payload template; run counts and
+confidence intervals describe repeated executions, not robustness over
+tasks or attacks.
+\emph{Sample size and controls.}
+PDF relay cells have $n=3$ and each cross-model question rests on one
+pairing; comparisons across scenarios, between raw and relayed injections,
+and between visible and white PDF text each change more than one factor.
 \emph{Single task family.}
 All scenarios use one task family (summarize content, then send a report);
-our findings may not generalize to tasks with different tool sequences,
-longer horizons, or different outbound action types.
-This is the primary threat to external validity.
-\emph{What the canary measures.}
-The canary token tracks copying of the payload marker.
-A paraphrased instruction could survive a memory write without it, so a
-token absent from memory does not show that the instruction is absent.
-Conversely, a model that refuses an injection but quotes the token in its
-refusal would be labeled Executed.
-We manually inspected the 22 compromised runs of the first batch and found
-no such false positives; later batches were not inspected.
-\emph{Run provenance.}
-The columns of Table~\ref{tab:overall} are computed over different run
-sets, and each model's runs come from a different mix of batches.
-\emph{Explicit payloads and lightweight defenses.}
-Payloads are clear, unobfuscated directives, and all defenses are
-lightweight wrappers approximating the stated mechanism; we did not run
-adaptive attacks.
+our observations may not hold for other tool sequences or longer
+horizons.
+\emph{Defenses.}
+The defense conditions are lightweight approximations (a pattern filter
+that matches our own marker, delimiter spotlighting, a system-prompt
+reminder), and we ran no adaptive attacks.
 \emph{Coverage.}
-We test five production LLMs from three providers; reasoning models and
-open-weight models are not evaluated.
+Five production LLMs from three providers; reasoning and open-weight
+models are not evaluated, and GPT-5-mini called no tool in 48
+text-surface runs and in none of its PDF relay runs.
 
 % -----------------------------------------------------------------------
 \section{Conclusion}
 \label{sec:conclusion}
 
-Stage-level canary tracking across 950 runs separates where an injection
-stops from whether it succeeds.
-Exposure was 100\% among runs that called the tool; the outcomes differ
-downstream: at the memory write (a Claude writer never persisted the
-token), at the reader (which executed relayed injections in some pairings
-and not others), by channel, and by which channel a defense inspects.
+A marker token checked at four interfaces of a two-agent memory relay
+separates where a marker stops from whether an attack succeeds.
+Across 950 runs, exposure was 100\% among runs that called the tool; the
+Claude models issued no outbound action carrying the token and wrote it to
+memory in none of 55 relay runs, GPT-4o-mini issued one in 35\% of its
+attacks, and the remaining differences by reader, scenario and defense
+are hypotheses for controlled follow-up.
 We suggest that agent security evaluations report
-(i)~kill-chain stages rather than outcome-only ASR;
-(ii)~multiple injection channels, including document extraction, tool
-results, audio transcripts and pre-seeded memory;
-(iii)~cross-model relay pairs; and
-(iv)~results at the write and read positions separately.
+(i)~the interface at which a marker stops as well as outcome-level ASR;
+(ii)~ASR over exposed runs and task success on the same attacked runs;
+(iii)~for each defense, the interface it acts on and whether the tested
+payload passes it; and
+(iv)~results at the write and read positions of a relay separately.
 
 \section*{Ethical Statement}
 
-All experiments were conducted in closed, sandboxed harnesses with no
-external network access; no real systems were compromised and no sensitive
-data was used.
+All experiments ran in a harness whose tools are mocks; the only external
+connections were the model API calls, no real systems were compromised and
+no sensitive data was used.
 The injection payloads and attack surfaces are representative of
 techniques already documented in the public
 literature~\cite{greshake2023not,perez2022ignore}, and we report no
 previously unknown vulnerability in a deployed product.
-The primary dual-use risk is that channel-mismatch analysis could inform
-more targeted attack design; we assess that the defensive
-contribution---establishing that evaluation coverage determines apparent
-security posture---outweighs this risk.
+The primary dual-use risk is that the coverage analysis could inform
+more targeted attack design; we assess that the defensive contribution
+outweighs this risk.
 
 \bibliography{refs}
 

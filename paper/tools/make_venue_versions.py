@@ -40,7 +40,7 @@ def teaser(env):
             "  \\caption{%s}\n  \\label{fig:teaser}\n\\end{%s}\n\n" % (env, teaser_cap, env))
 
 def insert_teaser(b, env):
-    key = "We address this with a kill-chain canary methodology"
+    key = "We address this with a kill-chain canary instrumentation"
     assert b.count(key) == 1
     return b.replace(key, teaser(env) + key)
 

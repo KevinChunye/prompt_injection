@@ -51,10 +51,10 @@
 <g transform="translate(352,410) scale(0.9)"><path d="M0,-20 L16,-13 V1 Q16,15 0,23 Q-16,15 -16,1 V-13 Z" fill="#7E57C2" stroke="#2B2B2B" stroke-width="2.2" stroke-linejoin="round"/><path d="M-7,1 L-2,7 L8,-5" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
 <text x="300.0" y="380.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#7E57C2" font-weight="bold">spotlighting</tspan></text>
 <circle cx="432" cy="410" r="19" fill="#F6C945" stroke="#2B2B2B" stroke-width="2.5"/><text x="428.1" y="417.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="bold">1</tspan></text>
-<line x1="476" y1="448" x2="296" y2="492" stroke="#2B2B2B" stroke-width="3" marker-end="url(#ah)"/>
-<g transform="translate(430,459) scale(0.85)"><path d="M0,-20 L16,-13 V1 Q16,15 0,23 Q-16,15 -16,1 V-13 Z" fill="#7E57C2" stroke="#2B2B2B" stroke-width="2.2" stroke-linejoin="round"/><path d="M-7,1 L-2,7 L8,-5" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="300.0" y="524.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#7E57C2" font-weight="bold">pi_detector</tspan></text>
-<text x="300.0" y="548.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#555" font-weight="normal">outgoing queries</tspan></text>
+<g transform="translate(440,494) scale(0.85)"><path d="M0,-20 L16,-13 V1 Q16,15 0,23 Q-16,15 -16,1 V-13 Z" fill="#7E57C2" stroke="#2B2B2B" stroke-width="2.2" stroke-linejoin="round"/><path d="M-7,1 L-2,7 L8,-5" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="300.0" y="500.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#7E57C2" font-weight="bold">pi_detector</tspan></text>
+<text x="300.0" y="524.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#555" font-weight="normal">system-prompt</tspan></text>
+<text x="300.0" y="548.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#555" font-weight="normal">reminder (PDF relay)</tspan></text>
 
 <circle cx="520" cy="400" r="46" fill="#DCEAF7" stroke="#2B2B2B" stroke-width="2.5"/>
 <line x1="520" y1="377.0" x2="520" y2="366.88" stroke="#2B2B2B" stroke-width="2.5"/>
@@ -108,7 +108,7 @@
 <line x1="700" y1="598" x2="760" y2="598" stroke="#E65100" stroke-width="5"/>
 <text x="772.0" y="605.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">path the injection can take</tspan></text>
 <g transform="translate(1070,598) scale(0.75)"><path d="M0,-20 L16,-13 V1 Q16,15 0,23 Q-16,15 -16,1 V-13 Z" fill="#7E57C2" stroke="#2B2B2B" stroke-width="2.2" stroke-linejoin="round"/><path d="M-7,1 L-2,7 L8,-5" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="1092.0" y="605.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">where each defense looks</tspan></text>
+<text x="1092.0" y="605.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">where each defense acts</tspan></text>
 <rect x="30.0" y="640" width="321.5" height="208" rx="16" fill="#F7F7F2" stroke="#CCCCCC" stroke-width="2"/>
 <text x="50.0" y="680.0" font-family="Comic Neue" font-size="21" xml:space="preserve"><tspan fill="#D9731F" font-weight="bold">5 models</tspan></text>
 <text x="50.0" y="720.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">GPT-4o-mini, GPT-5-mini</tspan></text>
@@ -122,12 +122,12 @@
 <text x="389.5" y="774.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">visible / white PDF text,</tspan></text>
 <text x="389.5" y="801.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">audio transcript (pilot)</tspan></text>
 <rect x="709.0" y="640" width="321.5" height="208" rx="16" fill="#F7F7F2" stroke="#CCCCCC" stroke-width="2"/>
-<text x="729.0" y="680.0" font-family="Comic Neue" font-size="21" xml:space="preserve"><tspan fill="#D9731F" font-weight="bold">5 defense conditions</tspan></text>
+<text x="729.0" y="680.0" font-family="Comic Neue" font-size="21" xml:space="preserve"><tspan fill="#D9731F" font-weight="bold">Defense conditions</tspan></text>
 <text x="729.0" y="720.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">none, write_filter,</tspan></text>
-<text x="729.0" y="747.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">pi_detector, spotlighting,</tspan></text>
-<text x="729.0" y="774.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">all three combined</tspan></text>
+<text x="729.0" y="747.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">spotlighting; PDF relay also</tspan></text>
+<text x="729.0" y="774.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">pi_detector, all three</tspan></text>
 <rect x="1048.5" y="640" width="321.5" height="208" rx="16" fill="#F7F7F2" stroke="#CCCCCC" stroke-width="2"/>
-<text x="1068.5" y="680.0" font-family="Comic Neue" font-size="21" xml:space="preserve"><tspan fill="#D9731F" font-weight="bold">950 runs, temperature 0</tspan></text>
+<text x="1068.5" y="680.0" font-family="Comic Neue" font-size="21" xml:space="preserve"><tspan fill="#D9731F" font-weight="bold">950 runs</tspan></text>
 <text x="1068.5" y="720.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">Text: 764 runs,</tspan></text>
 <text x="1068.5" y="747.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">8–36 per cell</tspan></text>
 <text x="1068.5" y="774.0" font-family="Comic Neue" font-size="20" xml:space="preserve"><tspan fill="#2B2B2B" font-weight="normal">PDF relay: 186 runs,</tspan></text>

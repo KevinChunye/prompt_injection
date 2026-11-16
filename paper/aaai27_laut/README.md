@@ -7,7 +7,8 @@ Anonymous, AAAI two-column version of `../main.tex` for the AAAI-27 workshop
 - Build: `bash build.sh` (pdflatex + bibtex; needs `newtx` fonts).
 - `aaai2027.sty` / `aaai2027.bst`: unmodified, from the official AuthorKit27.
 
-No numbers or claims were changed relative to `../main.tex`; content was only cut or condensed.
+Content is condensed from `../main.tex` and carries the same corrections as the TMLR revision
+(action-level Executed, defense conditions described as implemented; see `../review/tmlr_response_to_reviewers.md`).
 
 Changes from the arXiv version:
 - AAAI-27 style with the `submission` option; authors, affiliations, emails and the repository URL removed.

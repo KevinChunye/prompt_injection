@@ -41,10 +41,12 @@ p.append(text_line(300, 452, [P("tool results", TAINT, True)], 20))
 p.append(shield(352, 410, 0.9))
 p.append(text_line(300, 380, [P("spotlighting", PURP, True)], 20))
 p.append(checkpoint(432, 410, 1))
-p.append(f'<line x1="476" y1="448" x2="296" y2="492" stroke="{INK}" stroke-width="3" marker-end="url(#ah)"/>')
-p.append(shield(430, 459, 0.85))
-p.append(text_line(300, 524, [P("pi_detector", PURP, True)], 20))
-p.append(text_line(300, 548, [P("outgoing queries", "#555")], 20))
+# pi_detector is a reminder in Agent A's system prompt (PDF relay only); it
+# inspects nothing, so no arrow is drawn for it.
+p.append(shield(440, 494, 0.85))
+p.append(text_line(300, 500, [P("pi_detector", PURP, True)], 20))
+p.append(text_line(300, 524, [P("system-prompt", "#555")], 20))
+p.append(text_line(300, 548, [P("reminder (PDF relay)", "#555")], 20))
 
 p.append(robot(AX, AY, 46))
 p.append(lines_block(AX, AY + 76, [[P("Agent A", INK, True)], [P("reads, summarizes", "#555")]], 20, lh=24, anchor="middle"))
@@ -83,13 +85,13 @@ p.append(text_line(660, 560, [P("single-agent tool_poison: the same agent sends 
 p.append(f'<line x1="700" y1="598" x2="760" y2="598" stroke="{TAINT}" stroke-width="5"/>')
 p.append(text_line(772, 605, [P("path the injection can take")], 20))
 p.append(shield(1070, 598, 0.75))
-p.append(text_line(1092, 605, [P("where each defense looks")], 20))
+p.append(text_line(1092, 605, [P("where each defense acts")], 20))
 
 # --- bottom design cards
 cards = [("5 models", [[P("GPT-4o-mini, GPT-5-mini")], [P("DeepSeek Chat")], [P("Claude Haiku 4.5")], [P("Claude Sonnet 4.5")]]),
          ("6 attack surfaces", [[P("Web page, tool result,")], [P("pre-seeded memory,")], [P("visible / white PDF text,")], [P("audio transcript (pilot)")]]),
-         ("5 defense conditions", [[P("none, write_filter,")], [P("pi_detector, spotlighting,")], [P("all three combined")]]),
-         ("950 runs, temperature 0", [[P("Text: 764 runs,")], [P("8–36 per cell")], [P("PDF relay: 186 runs,")], [P("3 per cell")]])]
+         ("Defense conditions", [[P("none, write_filter,")], [P("spotlighting; PDF relay also")], [P("pi_detector, all three")]]),
+         ("950 runs", [[P("Text: 764 runs,")], [P("8–36 per cell")], [P("PDF relay: 186 runs,")], [P("3 per cell")]])]
 cw = (W - 60 - 3 * 18) / 4
 for i, (title, lines) in enumerate(cards):
     x = 30 + i * (cw + 18)
